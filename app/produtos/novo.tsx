@@ -104,6 +104,7 @@ export default function NovoProduto() {
                     }
                 ]
             );
+            limparCampos();
         } catch (error) {
             Alert.alert('Erro', 'Não foi possível cadastrar o produto. Tente novamente.');
             console.error(error);
