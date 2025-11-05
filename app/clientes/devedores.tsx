@@ -2,7 +2,7 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import ClienteCard from '../../components/ClientCard';
+import ClienteCard from '../../components/ClienteCard';
 import * as storage from '../../services/storage';
 import { Cliente, Compra } from '../../types';
 
@@ -42,7 +42,7 @@ export default function ClientesDevedores() {
             // Calcular total geral
             const total = comprasData
                 .filter(c => !c.pago)
-                .reduce((sum, c) => sum + c.valor, 0);
+                .reduce((sum, c) => sum + c.valorTotal, 0);
 
             setClientesDevedores(devedores);
             setCompras(comprasData);
