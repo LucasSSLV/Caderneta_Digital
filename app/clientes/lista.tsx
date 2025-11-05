@@ -2,7 +2,7 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import ClienteCard from '../../components/ClientCard';
+import ClienteCard from '../../components/ClienteCard';
 import * as storage from '../../services/storage';
 import { Cliente, Compra } from '../../types';
 
