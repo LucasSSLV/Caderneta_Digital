@@ -1,7 +1,7 @@
 // app/clientes/[id].tsx
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, FlatList, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CompraItem from '../../components/CompraItem';
 import TotalDevido from '../../components/TotalDevido';
 import * as storage from '../../services/storage';
@@ -20,7 +20,8 @@ export default function ClienteDetalhes() {
             setLoading(true);
 
             if (!id) {
-                Alert.alert('Erro', 'Cliente não encontrado');
+                if (Platform.OS === 'web') alert('Erro: Cliente não encontrado');
+                else Alert.alert('Erro', 'Cliente não encontrado');
                 router.back();
                 return;
             }
@@ -31,7 +32,8 @@ export default function ClienteDetalhes() {
             ]);
 
             if (!clienteData) {
-                Alert.alert('Erro', 'Cliente não encontrado');
+                if (Platform.OS === 'web') alert('Erro: Cliente não encontrado');
+                else Alert.alert('Erro', 'Cliente não encontrado');
                 router.back();
                 return;
             }
@@ -39,7 +41,8 @@ export default function ClienteDetalhes() {
             setCliente(clienteData);
             setCompras(comprasData);
         } catch (error) {
-            Alert.alert('Erro', 'Não foi possível carregar os dados.');
+            if (Platform.OS === 'web') alert('Erro: Não foi possível carregar os dados.');
+            else Alert.alert('Erro', 'Não foi possível carregar os dados.');
             console.error(error);
         } finally {
             setLoading(false);
@@ -52,36 +55,62 @@ export default function ClienteDetalhes() {
         }, [id])
     );
 
+    useEffect(() => {
+        console.log("O estado 'compras' foi atualizado:", compras);
+    }, [compras]);
+
     const handleTogglePago = async (compraId: string) => {
         try {
             await storage.toggleCompraStatus(compraId);
             await carregarDados();
         } catch (error) {
-            Alert.alert('Erro', 'Não foi possível atualizar o status da compra.');
+            if (Platform.OS === 'web') alert('Erro: Não foi possível atualizar o status da compra.');
+            else Alert.alert('Erro', 'Não foi possível atualizar o status da compra.');
         }
     };
 
-    const handleDeleteCompra = (compraId: string, descricao: string) => {
-        Alert.alert(
-            'Excluir Compra',
-            `Deseja excluir "${descricao}"?`,
-            [
-                { text: 'Cancelar', style: 'cancel' },
-                {
-                    text: 'Excluir',
-                    style: 'destructive',
-                    onPress: async () => {
-                        try {
-                            await storage.excluirCompra(compraId);
-                            await carregarDados();
-                            Alert.alert('Sucesso', 'Compra excluída com sucesso!');
-                        } catch (error) {
-                            Alert.alert('Erro', 'Não foi possível excluir a compra.');
-                        }
-                    }
+    const handleDeleteCompra = (compraId: string) => {
+        const performDelete = async () => {
+            try {
+                // Optimistic UI update
+                setCompras(prevCompras => prevCompras.filter(c => c.id !== compraId));
+                
+                await storage.excluirCompra(compraId);
+
+                if (Platform.OS === 'web') {
+                    alert('Compra excluída com sucesso!');
+                } else {
+                    Alert.alert('Sucesso', 'Compra excluída com sucesso!');
                 }
-            ]
-        );
+            } catch (error) {
+                if (Platform.OS === 'web') {
+                    alert('Não foi possível excluir a compra.');
+                } else {
+                    Alert.alert('Erro', 'Não foi possível excluir a compra.');
+                }
+                // If error, roll back the optimistic update
+                carregarDados();
+            }
+        };
+
+        if (Platform.OS === 'web') {
+            if (window.confirm('Deseja excluir?')) {
+                performDelete();
+            }
+        } else {
+            Alert.alert(
+                'Excluir Compra',
+                'Deseja excluir?',
+                [
+                    { text: 'Cancelar', style: 'cancel' },
+                    {
+                        text: 'Excluir',
+                        style: 'destructive',
+                        onPress: performDelete
+                    }
+                ]
+            );
+        }
     };
 
     const handleNovaCompra = () => {
@@ -144,7 +173,7 @@ export default function ClienteDetalhes() {
                     <CompraItem
                         compra={item}
                         onTogglePago={() => handleTogglePago(item.id)}
-                        onDelete={() => handleDeleteCompra(item.id, item.descricao)}
+                        onDelete={() => { handleDeleteCompra(item.id); console.log("Delete compra with ID:", item.id); }}
                     />
                 )}
                 contentContainerStyle={styles.lista}
