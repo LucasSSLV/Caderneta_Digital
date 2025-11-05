@@ -35,7 +35,7 @@ export default function ComprasPendentes() {
                 })
                 .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
 
-            const total = pendentes.reduce((sum, c) => sum + c.valor, 0);
+            const total = pendentes.reduce((sum, c) => sum + c.valorTotal, 0);
 
             setCompras(pendentes);
             setTotalPendente(total);
@@ -128,11 +128,11 @@ export default function ComprasPendentes() {
                             </TouchableOpacity>
                         </View>
 
-                        <Text style={styles.descricao}>{item.descricao}</Text>
+                        {/* <Text style={styles.descricao}>{item.observacao}</Text> */}
 
                         <View style={styles.compraFooter}>
                             <Text style={styles.data}>{formatarData(item.data)}</Text>
-                            <Text style={styles.valor}>{formatarValor(item.valor)}</Text>
+                            <Text style={styles.valor}>{formatarValor(item.valorTotal)}</Text>
                         </View>
                     </TouchableOpacity>
                 )}
