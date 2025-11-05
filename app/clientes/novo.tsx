@@ -70,6 +70,8 @@ export default function NovoCliente() {
                     }
                 ]
             );
+            setNome('');
+            setTelefone('');
         } catch (error) {
             Alert.alert('Erro', 'Não foi possível cadastrar o cliente. Tente novamente.');
             console.error(error);
@@ -114,7 +116,7 @@ export default function NovoCliente() {
                         <Text style={styles.label}>Telefone (opcional)</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="(85) 98765-4321"
+                            placeholder="(85) 99999-9999"
                             value={telefone}
                             onChangeText={handleTelefoneChange}
                             keyboardType="phone-pad"

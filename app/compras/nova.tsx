@@ -91,6 +91,8 @@ export default function NovaCompra() {
                     }
                 ]
             );
+            setDescricao('');
+            setValor('');
         } catch (error) {
             Alert.alert('Erro', 'Não foi possível registrar a compra. Tente novamente.');
             console.error(error);
