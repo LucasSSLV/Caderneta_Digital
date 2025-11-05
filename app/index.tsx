@@ -4,23 +4,27 @@ import { StatusBar } from 'expo-status-bar';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as storage from '../services/storage';
-import { Cliente, Compra } from '../types';
+import { Cliente, Compra, Produto } from '../types';
 
 export default function Index() {
   const router = useRouter();
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [compras, setCompras] = useState<Compra[]>([]);
   const [loading, setLoading] = useState(true);
+  //mexi aqui abaixo
+  const [produtos, setProdutos] = useState<Produto[]>([]);
 
   const carregarDados = async () => {
     try {
       setLoading(true);
-      const [clientesData, comprasData] = await Promise.all([
+      const [clientesData, comprasData, produtosData] = await Promise.all([
         storage.carregarClientes(),
         storage.carregarCompras(),
+        storage.carregarProdutos(),
       ]);
       setClientes(clientesData);
       setCompras(comprasData);
+      setProdutos(produtosData);
     } catch (error) {
       console.error(error);
     } finally {
@@ -36,7 +40,7 @@ export default function Index() {
 
   const calcularEstatisticas = () => {
     const totalClientes = clientes.length;
-    
+
     const clientesDevedores = clientes.filter(cliente => {
       const comprasCliente = compras.filter(c => c.clienteId === cliente.id);
       const totalDevido = storage.calcularTotalDevido(comprasCliente);
@@ -45,11 +49,11 @@ export default function Index() {
 
     const totalDevido = compras
       .filter(c => !c.pago)
-      .reduce((sum, c) => sum + c.valor, 0);
+      .reduce((sum, c) => sum + c.valorTotal, 0);
 
     const totalPago = compras
       .filter(c => c.pago)
-      .reduce((sum, c) => sum + c.valor, 0);
+      .reduce((sum, c) => sum + c.valorTotal, 0);
 
     const totalCompras = compras.length;
     const comprasPendentes = compras.filter(c => !c.pago).length;
@@ -85,7 +89,7 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
-      
+
       <View style={styles.header}>
         <Text style={styles.titulo}>📓 Caderneta Digital</Text>
         <Text style={styles.subtitulo}>Bem-vindo de volta!</Text>
@@ -112,10 +116,10 @@ export default function Index() {
         {/* Menu Principal */}
         <View style={styles.menuContainer}>
           <Text style={styles.sectionTitle}>Menu Principal</Text>
-          
+
           <View style={styles.menuGrid}>
             {/* Clientes */}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.menuCard}
               onPress={() => router.push('/clientes/lista')}
               activeOpacity={0.7}
@@ -128,7 +132,7 @@ export default function Index() {
             </TouchableOpacity>
 
             {/* Devedores */}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.menuCard}
               onPress={() => router.push('/clientes/devedores')}
               activeOpacity={0.7}
@@ -141,7 +145,7 @@ export default function Index() {
             </TouchableOpacity>
 
             {/* Compras Pendentes */}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.menuCard}
               onPress={() => router.push('/compras/pendentes')}
               activeOpacity={0.7}
@@ -154,7 +158,7 @@ export default function Index() {
             </TouchableOpacity>
 
             {/* Compras Pagas */}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.menuCard}
               onPress={() => router.push('/compras/pagas')}
               activeOpacity={0.7}
@@ -173,8 +177,9 @@ export default function Index() {
         {/* Ações Rápidas */}
         <View style={styles.actionsContainer}>
           <Text style={styles.sectionTitle}>Ações Rápidas</Text>
-          
-          <TouchableOpacity 
+
+          {/* adiciona novo cliente */}
+          <TouchableOpacity
             style={styles.actionButton}
             onPress={() => router.push('/clientes/novo')}
             activeOpacity={0.8}
@@ -185,6 +190,22 @@ export default function Index() {
             <View style={styles.actionContent}>
               <Text style={styles.actionTitle}>Novo Cliente</Text>
               <Text style={styles.actionSubtitle}>Cadastrar um novo cliente</Text>
+            </View>
+            <Text style={styles.actionArrow}>›</Text>
+          </TouchableOpacity>
+
+          {/* cadastro de produto */}
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => router.push('/produtos/novo')}
+            activeOpacity={0.8}
+          >
+            <View style={styles.actionIcon}>
+              <Text style={styles.actionIconText}>➕</Text>
+            </View> 
+            <View style={styles.actionContent}>
+              <Text style={styles.actionTitle}>Novo Produto</Text>
+              <Text style={styles.actionSubtitle}>Cadastrar um novo produto</Text>
             </View>
             <Text style={styles.actionArrow}>›</Text>
           </TouchableOpacity>
