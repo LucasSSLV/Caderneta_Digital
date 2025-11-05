@@ -1,4 +1,4 @@
-// components/CompraItem.tsx
+// components/CompraItem.tsx - ATUALIZADO
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Compra } from '../types';
 
@@ -26,6 +26,22 @@ export default function CompraItem({
         return date.toLocaleDateString('pt-BR');
     };
 
+    const getDescricao = () => {
+        if (compra.itens && compra.itens.length > 0) {
+            // Nova estrutura com itens
+            const quantidadeItens = compra.itens.length;
+            const primeiroItem = compra.itens[0];
+
+            if (quantidadeItens === 1) {
+                return `${primeiroItem.quantidade} ${primeiroItem.tipo === 'unidade' ? 'und' : 'cx'} - ${primeiroItem.nomeProduto}`;
+            } else {
+                return `${quantidadeItens} produtos: ${primeiroItem.nomeProduto}${quantidadeItens > 1 ? '...' : ''}`;
+            }
+        }
+        // Fallback para estrutura antiga
+        return compra.observacao || 'Compra sem descrição';
+    };
+
     return (
         <View style={[
             styles.container,
@@ -41,9 +57,12 @@ export default function CompraItem({
                         styles.descricao,
                         compra.pago && styles.textoPago
                     ]}>
-                        {compra.descricao}
+                        {getDescricao()}
                     </Text>
                     <Text style={styles.data}>{formatarData(compra.data)}</Text>
+                    {compra.observacao && (
+                        <Text style={styles.observacao}>{compra.observacao}</Text>
+                    )}
                 </View>
 
                 <View style={styles.direita}>
@@ -51,7 +70,7 @@ export default function CompraItem({
                         styles.valor,
                         compra.pago && styles.textoPago
                     ]}>
-                        {formatarValor(compra.valor)}
+                        {formatarValor(compra.valorTotal)}
                     </Text>
                     {compra.pago && (
                         <Text style={styles.badge}>✓ Pago</Text>
@@ -107,6 +126,12 @@ const styles = StyleSheet.create({
     data: {
         fontSize: 12,
         color: '#999',
+    },
+    observacao: {
+        fontSize: 12,
+        color: '#666',
+        fontStyle: 'italic',
+        marginTop: 4,
     },
     direita: {
         alignItems: 'flex-end',
