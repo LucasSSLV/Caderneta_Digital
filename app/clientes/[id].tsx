@@ -1,6 +1,6 @@
 // app/clientes/[id].tsx
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CompraItem from '../../components/CompraItem';
 import TotalDevido from '../../components/TotalDevido';
@@ -55,9 +55,9 @@ export default function ClienteDetalhes() {
         }, [id])
     );
 
-    useEffect(() => {
-        console.log("O estado 'compras' foi atualizado:", compras);
-    }, [compras]);
+    // useEffect(() => {
+    //     console.log("O estado 'compras' foi atualizado:", compras);
+    // }, [compras]);
 
     const handleTogglePago = async (compraId: string) => {
         try {
@@ -74,7 +74,7 @@ export default function ClienteDetalhes() {
             try {
                 // Optimistic UI update
                 setCompras(prevCompras => prevCompras.filter(c => c.id !== compraId));
-                
+
                 await storage.excluirCompra(compraId);
 
                 if (Platform.OS === 'web') {
@@ -173,7 +173,7 @@ export default function ClienteDetalhes() {
                     <CompraItem
                         compra={item}
                         onTogglePago={() => handleTogglePago(item.id)}
-                        onDelete={() => { handleDeleteCompra(item.id); console.log("Delete compra with ID:", item.id); }}
+                        onDelete={() => handleDeleteCompra(item.id)}
                     />
                 )}
                 contentContainerStyle={styles.lista}
