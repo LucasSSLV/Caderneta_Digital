@@ -1,9 +1,10 @@
 // services/storage.ts
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Cliente, Compra } from "../types";
+import { Cliente, Compra, Produto } from "../types";
 
 const CLIENTES_KEY = "@caderneta:clientes";
 const COMPRAS_KEY = "@caderneta:compras";
+const PRODUTOS_KEY = "@caderneta:produtos";
 
 // ==================== CLIENTES ====================
 
@@ -174,18 +175,90 @@ export const toggleCompraStatus = async (compraId: string): Promise<void> => {
 export const calcularTotalDevido = (compras: Compra[]): number => {
   return compras
     .filter((c) => !c.pago)
-    .reduce((total, compra) => total + compra.valor, 0);
+    .reduce((total, compra) => total + compra.valorTotal, 0);
 };
 
 export const gerarId = (): string => {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
 
+// ==================== PRODUTOS ====================
+
+export const salvarProdutos = async (produtos: Produto[]): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(PRODUTOS_KEY, JSON.stringify(produtos));
+  } catch (error) {
+    console.error("Erro ao salvar produtos:", error);
+    throw error;
+  }
+};
+
+export const carregarProdutos = async (): Promise<Produto[]> => {
+  try {
+    const data = await AsyncStorage.getItem(PRODUTOS_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    console.error("Erro ao carregar produtos:", error);
+    return [];
+  }
+};
+
+export const adicionarProduto = async (produto: Produto): Promise<void> => {
+  try {
+    const produtos = await carregarProdutos();
+    produtos.push(produto);
+    await salvarProdutos(produtos);
+  } catch (error) {
+    console.error("Erro ao adicionar produto:", error);
+    throw error;
+  }
+};
+
+export const atualizarProduto = async (
+  produtoAtualizado: Produto
+): Promise<void> => {
+  try {
+    const produtos = await carregarProdutos();
+    const index = produtos.findIndex((p) => p.id === produtoAtualizado.id);
+
+    if (index !== -1) {
+      produtos[index] = produtoAtualizado;
+      await salvarProdutos(produtos);
+    }
+  } catch (error) {
+    console.error("Erro ao atualizar produto:", error);
+    throw error;
+  }
+};
+
+export const excluirProduto = async (produtoId: string): Promise<void> => {
+  try {
+    const produtos = await carregarProdutos();
+    const produtosFiltrados = produtos.filter((p) => p.id !== produtoId);
+    await salvarProdutos(produtosFiltrados);
+  } catch (error) {
+    console.error("Erro ao excluir produto:", error);
+    throw error;
+  }
+};
+
+export const buscarProdutoPorId = async (
+  produtoId: string
+): Promise<Produto | null> => {
+  try {
+    const produtos = await carregarProdutos();
+    return produtos.find((p) => p.id === produtoId) || null;
+  } catch (error) {
+    console.error("Erro ao buscar produto:", error);
+    return null;
+  }
+};
+
 // ==================== DEBUG ====================
 
 export const limparTodosDados = async (): Promise<void> => {
   try {
-    await AsyncStorage.multiRemove([CLIENTES_KEY, COMPRAS_KEY]);
+    await AsyncStorage.multiRemove([CLIENTES_KEY, COMPRAS_KEY, PRODUTOS_KEY]);
     console.log("Todos os dados foram limpos!");
   } catch (error) {
     console.error("Erro ao limpar dados:", error);
