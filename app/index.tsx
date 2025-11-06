@@ -352,8 +352,9 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     paddingHorizontal: 16,
-    paddingTop: 24,
+    paddingTop: 15,
     paddingBottom: 24,
+    gap: 12,
   },
   actionButton: {
     flexDirection: 'row',
