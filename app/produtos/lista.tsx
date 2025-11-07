@@ -30,7 +30,7 @@ export default function ListaProdutos() {
     );
 
     const handleProdutoPress = (produtoId: string) => {
-        // Futuramente: navegar para tela de edição
+        
         console.log('Produto:', produtoId);
     };
 
