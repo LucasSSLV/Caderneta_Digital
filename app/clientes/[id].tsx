@@ -157,6 +157,12 @@ export default function ClienteDetalhes() {
                 {cliente.telefone && (
                     <Text style={styles.telefone}>{cliente.telefone}</Text>
                 )}
+                <TouchableOpacity
+                    onPress={() => router.push(`/clientes/editar/${cliente.id}`)}
+                    style={styles.btnEditar}
+                >
+                    <Text style={{ color: '#007AFF', marginTop: 8 }}>✍️​Editar Cliente</Text>
+                </TouchableOpacity>
             </View>
 
             <FlatList
@@ -222,6 +228,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         borderBottomWidth: 1,
         borderBottomColor: '#e0e0e0',
+    },
+    btnEditar: {
+        marginTop: 8,
+        padding: 8,
+        borderRadius: 4,
     },
     btnVoltar: {
         marginBottom: 12,
