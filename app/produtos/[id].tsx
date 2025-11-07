@@ -19,7 +19,7 @@ import { Produto } from '../../types';
 export default function EditarProduto() {
     const router = useRouter();
     const { id } = useLocalSearchParams<{ id: string }>();
-    
+
     const [loading, setLoading] = useState(true);
     const [nome, setNome] = useState('');
     const [categoria, setCategoria] = useState('');
@@ -34,6 +34,7 @@ export default function EditarProduto() {
         carregarProduto();
     }, [id]);
 
+
     const carregarProduto = async () => {
         if (!id) {
             Alert.alert('Erro', 'Produto não encontrado');
@@ -44,7 +45,7 @@ export default function EditarProduto() {
         try {
             setLoading(true);
             const produto = await storage.buscarProdutoPorId(id);
-            
+
             if (!produto) {
                 Alert.alert('Erro', 'Produto não encontrado');
                 router.back();
@@ -98,6 +99,18 @@ export default function EditarProduto() {
         setPrecoCaixa(formatted);
     };
 
+
+    const limparTodosDados = async () => {
+        setNome('');
+        setCategoria('');
+        setPrecoUnidade('');
+        setPrecoCaixa('');
+        setPesoUnidade('');
+        setUnidadesPorCaixa('');
+        setEstoque('');
+    };
+
+
     const handleSalvar = async () => {
         if (!nome.trim()) {
             Alert.alert('Atenção', 'Por favor, informe o nome do produto.');
@@ -138,6 +151,9 @@ export default function EditarProduto() {
                     }
                 ]
             );
+
+            limparTodosDados();
+
         } catch (error) {
             Alert.alert('Erro', 'Não foi possível atualizar o produto. Tente novamente.');
             console.error(error);
