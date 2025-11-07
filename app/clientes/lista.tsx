@@ -1,7 +1,7 @@
-// app/clientes/lista.tsx
+// app/clientes/lista.tsx - COM BUSCA
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import ClienteCard from '../../components/ClienteCard';
 import * as storage from '../../services/storage';
 import { Cliente, Compra } from '../../types';
@@ -9,8 +9,10 @@ import { Cliente, Compra } from '../../types';
 export default function ListaClientes() {
     const router = useRouter();
     const [clientes, setClientes] = useState<Cliente[]>([]);
+    const [clientesFiltrados, setClientesFiltrados] = useState<Cliente[]>([]);
     const [compras, setCompras] = useState<Compra[]>([]);
     const [loading, setLoading] = useState(true);
+    const [busca, setBusca] = useState('');
 
     const carregarDados = async () => {
         try {
@@ -20,6 +22,7 @@ export default function ListaClientes() {
                 storage.carregarCompras(),
             ]);
             setClientes(clientesData);
+            setClientesFiltrados(clientesData);
             setCompras(comprasData);
         } catch (error) {
             Alert.alert('Erro', 'Não foi possível carregar os dados.');
@@ -34,6 +37,28 @@ export default function ListaClientes() {
             carregarDados();
         }, [])
     );
+
+    const handleBusca = (texto: string) => {
+        setBusca(texto);
+        
+        if (!texto.trim()) {
+            setClientesFiltrados(clientes);
+            return;
+        }
+
+        const textoLower = texto.toLowerCase();
+        const filtrados = clientes.filter(cliente => 
+            cliente.nome.toLowerCase().includes(textoLower) ||
+            cliente.telefone?.toLowerCase().includes(textoLower)
+        );
+        
+        setClientesFiltrados(filtrados);
+    };
+
+    const limparBusca = () => {
+        setBusca('');
+        setClientesFiltrados(clientes);
+    };
 
     const calcularTotalDevido = (clienteId: string) => {
         const comprasCliente = compras.filter(c => c.clienteId === clienteId);
@@ -92,12 +117,32 @@ export default function ListaClientes() {
 
                 <Text style={styles.titulo}>Todos os Clientes</Text>
                 <Text style={styles.subtitulo}>
-                    {clientes.length} {clientes.length === 1 ? 'cliente cadastrado' : 'clientes cadastrados'}
+                    {clientesFiltrados.length} {clientesFiltrados.length === 1 ? 'cliente' : 'clientes'}
+                    {busca ? ' encontrado(s)' : ' cadastrado(s)'}
                 </Text>
             </View>
 
+            {/* Barra de Busca */}
+            <View style={styles.buscaContainer}>
+                <View style={styles.buscaInputContainer}>
+                    <Text style={styles.buscaIcon}>🔍</Text>
+                    <TextInput
+                        style={styles.buscaInput}
+                        placeholder="Buscar por nome ou telefone..."
+                        value={busca}
+                        onChangeText={handleBusca}
+                        placeholderTextColor="#999"
+                    />
+                    {busca.length > 0 && (
+                        <TouchableOpacity onPress={limparBusca} style={styles.btnLimpar}>
+                            <Text style={styles.btnLimparText}>✕</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
+            </View>
+
             <FlatList
-                data={clientes}
+                data={clientesFiltrados}
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
                     <ClienteCard
@@ -110,10 +155,17 @@ export default function ListaClientes() {
                 contentContainerStyle={styles.lista}
                 ListEmptyComponent={
                     <View style={styles.empty}>
-                        <Text style={styles.emptyText}>👥</Text>
-                        <Text style={styles.emptyTitle}>Nenhum cliente cadastrado</Text>
+                        <Text style={styles.emptyText}>
+                            {busca ? '🔍' : '👥'}
+                        </Text>
+                        <Text style={styles.emptyTitle}>
+                            {busca ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado'}
+                        </Text>
                         <Text style={styles.emptySubtitle}>
-                            Toque no botão + para adicionar seu primeiro cliente
+                            {busca 
+                                ? 'Tente buscar por outro nome ou telefone'
+                                : 'Toque no botão + para adicionar seu primeiro cliente'
+                            }
                         </Text>
                     </View>
                 }
@@ -171,6 +223,37 @@ const styles = StyleSheet.create({
     subtitulo: {
         fontSize: 14,
         color: '#666',
+    },
+    buscaContainer: {
+        backgroundColor: '#fff',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#e0e0e0',
+    },
+    buscaInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f5f5f5',
+        borderRadius: 10,
+        paddingHorizontal: 12,
+    },
+    buscaIcon: {
+        fontSize: 18,
+        marginRight: 8,
+    },
+    buscaInput: {
+        flex: 1,
+        paddingVertical: 12,
+        fontSize: 16,
+        color: '#1a1a1a',
+    },
+    btnLimpar: {
+        padding: 4,
+    },
+    btnLimparText: {
+        fontSize: 18,
+        color: '#999',
     },
     lista: {
         paddingVertical: 8,

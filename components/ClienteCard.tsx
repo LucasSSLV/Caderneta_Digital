@@ -1,54 +1,48 @@
 
+// components/ClienteCard.tsx
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Cliente } from '../types';
 
-interface ClienteCardProps {
+type ClienteCardProps = {
   cliente: Cliente;
   totalDevido: number;
   onPress: () => void;
-  onLongPress?: () => void;
-}
+  onLongPress: () => void;
+};
 
-export default function ClienteCard({ cliente, totalDevido, onPress, onLongPress }: ClienteCardProps) {
-  const formatarValor = (valor: number) => {
-    return valor.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    });
-  };
-
+const ClienteCard: React.FC<ClienteCardProps> = ({ cliente, totalDevido, onPress, onLongPress }) => {
   return (
     <TouchableOpacity onPress={onPress} onLongPress={onLongPress} style={styles.card}>
       <View style={styles.infoContainer}>
         <Text style={styles.nome}>{cliente.nome}</Text>
-        <Text style={styles.telefone}>{cliente.telefone}</Text>
+        {cliente.telefone && <Text style={styles.telefone}>{cliente.telefone}</Text>}
       </View>
       <View style={styles.dividaContainer}>
         <Text style={styles.dividaLabel}>Dívida</Text>
         <Text style={[styles.dividaValor, totalDevido > 0 ? styles.comDivida : styles.semDivida]}>
-          {formatarValor(totalDevido)}
+          {totalDevido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
         </Text>
       </View>
     </TouchableOpacity>
   );
-}
+};
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 16,
+    marginHorizontal: 16,
+    marginVertical: 6,
+    borderRadius: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
   infoContainer: {
     flex: 1,
@@ -67,18 +61,19 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   dividaLabel: {
-    fontSize: 13,
-    color: '#666',
+    fontSize: 12,
+    color: '#999',
   },
   dividaValor: {
     fontSize: 16,
     fontWeight: '700',
-    marginTop: 4,
   },
   comDivida: {
-    color: '#e74c3c',
+    color: '#e53935', // Vermelho
   },
   semDivida: {
-    color: '#27ae60',
+    color: '#43a047', // Verde
   },
 });
+
+export default ClienteCard;
