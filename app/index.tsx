@@ -10,9 +10,8 @@ export default function Index() {
   const router = useRouter();
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [compras, setCompras] = useState<Compra[]>([]);
-  const [loading, setLoading] = useState(true);
-  //mexi aqui abaixo
   const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const carregarDados = async () => {
     try {
@@ -57,6 +56,7 @@ export default function Index() {
 
     const totalCompras = compras.length;
     const comprasPendentes = compras.filter(c => !c.pago).length;
+    const totalProdutos = produtos.length;
 
     return {
       totalClientes,
@@ -65,6 +65,7 @@ export default function Index() {
       totalPago,
       totalCompras,
       comprasPendentes,
+      totalProdutos,
     };
   };
 
@@ -131,6 +132,19 @@ export default function Index() {
               <Text style={styles.menuCount}>{stats.totalClientes}</Text>
             </TouchableOpacity>
 
+            {/* Produtos */}
+            <TouchableOpacity
+              style={styles.menuCard}
+              onPress={() => router.push('/produtos/lista')}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.menuIcon, { backgroundColor: '#F3E5F5' }]}>
+                <Text style={styles.menuIconText}>📦</Text>
+              </View>
+              <Text style={styles.menuTitle}>Produtos</Text>
+              <Text style={[styles.menuCount, { color: '#9C27B0' }]}>{stats.totalProdutos}</Text>
+            </TouchableOpacity>
+
             {/* Devedores */}
             <TouchableOpacity
               style={styles.menuCard}
@@ -171,6 +185,18 @@ export default function Index() {
                 {stats.totalCompras - stats.comprasPendentes}
               </Text>
             </TouchableOpacity>
+
+            {/* relatorios */}
+            <TouchableOpacity
+              style={styles.menuCard}
+              onPress={() => router.push('/relatorios')}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.menuIcon, { backgroundColor: '#E1F5FE' }]}>
+                <Text style={styles.menuIconText}>📊</Text>
+              </View>
+              <Text style={styles.menuTitle}>Relatórios</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -178,7 +204,6 @@ export default function Index() {
         <View style={styles.actionsContainer}>
           <Text style={styles.sectionTitle}>Ações Rápidas</Text>
 
-          {/* adiciona novo cliente */}
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => router.push('/clientes/novo')}
@@ -190,22 +215,6 @@ export default function Index() {
             <View style={styles.actionContent}>
               <Text style={styles.actionTitle}>Novo Cliente</Text>
               <Text style={styles.actionSubtitle}>Cadastrar um novo cliente</Text>
-            </View>
-            <Text style={styles.actionArrow}>›</Text>
-          </TouchableOpacity>
-
-          {/* cadastro de produto */}
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => router.push('/produtos/novo')}
-            activeOpacity={0.8}
-          >
-            <View style={styles.actionIcon}>
-              <Text style={styles.actionIconText}>➕</Text>
-            </View> 
-            <View style={styles.actionContent}>
-              <Text style={styles.actionTitle}>Novo Produto</Text>
-              <Text style={styles.actionSubtitle}>Cadastrar um novo produto</Text>
             </View>
             <Text style={styles.actionArrow}>›</Text>
           </TouchableOpacity>
@@ -352,9 +361,8 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     paddingHorizontal: 16,
-    paddingTop: 15,
+    paddingTop: 24,
     paddingBottom: 24,
-    gap: 12,
   },
   actionButton: {
     flexDirection: 'row',
