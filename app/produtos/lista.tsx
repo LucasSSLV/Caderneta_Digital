@@ -30,7 +30,7 @@ export default function ListaProdutos() {
     );
 
     const handleProdutoPress = (produtoId: string) => {
-        
+        router.push(`/produtos/${produtoId}`);
         console.log('Produto:', produtoId);
     };
 
