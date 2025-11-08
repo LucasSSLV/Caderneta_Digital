@@ -95,7 +95,7 @@ export default function ListaClientes() {
     const handleNovoCliente = () => {
         router.push('/clientes/novo');
     };
-
+    
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
