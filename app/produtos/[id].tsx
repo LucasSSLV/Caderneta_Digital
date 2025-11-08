@@ -274,7 +274,7 @@ export default function EditarProduto() {
                         <Text style={styles.label}>Estoque Atual (opcional)</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="Quantidade em estoque"
+                            placeholder="Quantidade em estoque ex: 50"
                             value={estoque}
                             onChangeText={setEstoque}
                             keyboardType="number-pad"
@@ -366,8 +366,10 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 14,
         fontSize: 16,
+        color: '#1a1a1a',
         borderWidth: 1,
         borderColor: '#e0e0e0',
+        fontWeight: '700',
     },
     valorContainer: {
         flexDirection: 'row',
@@ -381,15 +383,16 @@ const styles = StyleSheet.create({
     cifrao: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#666',
+        color: '#088d3fff',
         marginRight: 6,
     },
     inputValor: {
         flex: 1,
         fontSize: 18,
         fontWeight: '600',
-        color: '#1a1a1a',
+        color: '#f70505ff',
         padding: 14,
+
     },
     footer: {
         backgroundColor: '#fff',
