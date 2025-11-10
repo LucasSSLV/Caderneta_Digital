@@ -69,6 +69,10 @@ export default function ClientesDevedores() {
         router.push(`/clientes/${clienteId}`);
     };
 
+    const handleClienteLongPress = (clienteId: string) => {
+        router.push(`/clientes/editar/${clienteId}`);
+    };
+
     const formatarValor = (valor: number) => {
         return valor.toLocaleString('pt-BR', {
             style: 'currency',
@@ -116,6 +120,7 @@ export default function ClientesDevedores() {
                         cliente={item}
                         totalDevido={calcularTotalDevido(item.id)}
                         onPress={() => handleClientePress(item.id)}
+                        onLongPress={() => handleClienteLongPress(item.id)}
                     />
                 )}
                 contentContainerStyle={styles.lista}

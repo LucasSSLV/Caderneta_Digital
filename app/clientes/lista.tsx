@@ -71,23 +71,47 @@ export default function ListaClientes() {
 
     const handleClienteLongPress = (cliente: Cliente) => {
         Alert.alert(
-            'Excluir Cliente',
-            `Deseja excluir ${cliente.nome}?\n\nTodas as compras deste cliente também serão excluídas.`,
+            cliente.nome,
+            'O que você deseja fazer?',
+            [
+                {
+                    text: 'Editar',
+                    onPress: () => router.push(`/clientes/editar/${cliente.id}`),
+                },
+                {
+                    text: 'Excluir',
+                    style: 'destructive',
+                    onPress: () => confirmarExclusao(cliente),
+                },
+                { text: 'Cancelar', style: 'cancel' },
+            ],
+            { cancelable: true }
+        );
+    };
+
+    const confirmarExclusao = (cliente: Cliente) => {
+        Alert.alert(
+            'Confirmar Exclusão',
+            `Tem certeza que deseja excluir ${cliente.nome}?\n\nTodas as compras associadas também serão removidas. Esta ação não pode ser desfeita.`,
             [
                 { text: 'Cancelar', style: 'cancel' },
                 {
-                    text: 'Excluir',
+                    text: 'Excluir Definitivamente',
                     style: 'destructive',
                     onPress: async () => {
                         try {
                             await storage.excluirCliente(cliente.id);
-                            await carregarDados();
-                            Alert.alert('Sucesso', 'Cliente excluído com sucesso!');
+                            // Atualiza o estado localmente para uma resposta mais rápida da UI
+                            setClientes(prev => prev.filter(c => c.id !== cliente.id));
+                            setClientesFiltrados(prev => prev.filter(c => c.id !== cliente.id));
+                            Alert.alert('Sucesso', `${cliente.nome} foi excluído.`);
                         } catch (error) {
                             Alert.alert('Erro', 'Não foi possível excluir o cliente.');
+                            // Se der erro, recarrega os dados para garantir consistência
+                            carregarDados();
                         }
-                    }
-                }
+                    },
+                },
             ]
         );
     };

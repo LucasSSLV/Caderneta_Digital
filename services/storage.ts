@@ -1,10 +1,11 @@
-// services/storage.ts
+// services/storage.ts - COM CONTROLE DE ESTOQUE
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Cliente, Compra, Produto } from "../types";
 
 const CLIENTES_KEY = "@caderneta:clientes";
 const COMPRAS_KEY = "@caderneta:compras";
 const PRODUTOS_KEY = "@caderneta:produtos";
+const MOVIMENTACOES_KEY = "@caderneta:movimentacoes";
 
 // ==================== CLIENTES ====================
 
@@ -61,7 +62,6 @@ export const excluirCliente = async (clienteId: string): Promise<void> => {
     const clientesFiltrados = clientes.filter((c) => c.id !== clienteId);
     await salvarClientes(clientesFiltrados);
 
-    // Também excluir todas as compras deste cliente
     const compras = await carregarCompras();
     const comprasFiltradas = compras.filter((c) => c.clienteId !== clienteId);
     await salvarCompras(comprasFiltradas);
@@ -106,6 +106,9 @@ export const carregarCompras = async (): Promise<Compra[]> => {
 
 export const adicionarCompra = async (compra: Compra): Promise<void> => {
   try {
+    // DESCONTAR ESTOQUE AUTOMATICAMENTE ANTES DE SALVAR
+    await descontarEstoqueDaVenda(compra);
+
     const compras = await carregarCompras();
     compras.push(compra);
     await salvarCompras(compras);
@@ -135,6 +138,13 @@ export const atualizarCompra = async (
 export const excluirCompra = async (compraId: string): Promise<void> => {
   try {
     const compras = await carregarCompras();
+    const compra = compras.find((c) => c.id === compraId);
+
+    if (compra) {
+      // DEVOLVER ESTOQUE AO EXCLUIR COMPRA
+      await devolverEstoqueDaVenda(compra);
+    }
+
     const comprasFiltradas = compras.filter((c) => c.id !== compraId);
     await salvarCompras(comprasFiltradas);
   } catch (error) {
@@ -168,18 +178,6 @@ export const toggleCompraStatus = async (compraId: string): Promise<void> => {
     console.error("Erro ao alternar status da compra:", error);
     throw error;
   }
-};
-
-// ==================== UTILIDADES ====================
-
-export const calcularTotalDevido = (compras: Compra[]): number => {
-  return compras
-    .filter((c) => !c.pago)
-    .reduce((total, compra) => total + compra.valorTotal, 0);
-};
-
-export const gerarId = (): string => {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
 
 // ==================== PRODUTOS ====================
@@ -252,6 +250,136 @@ export const buscarProdutoPorId = async (
     console.error("Erro ao buscar produto:", error);
     return null;
   }
+};
+
+// ==================== CONTROLE DE ESTOQUE ====================
+
+// Descontar estoque ao registrar venda
+const descontarEstoqueDaVenda = async (compra: Compra): Promise<void> => {
+  try {
+    const produtos = await carregarProdutos();
+    let estoqueAtualizado = false;
+
+    for (const item of compra.itens) {
+      const produto = produtos.find((p) => p.id === item.produtoId);
+
+      if (produto && produto.estoque !== undefined) {
+        const quantidadeDescontar =
+          item.tipo === "caixa" && produto.unidadesPorCaixa
+            ? item.quantidade * produto.unidadesPorCaixa
+            : item.quantidade;
+
+        produto.estoque = Math.max(0, produto.estoque - quantidadeDescontar);
+        estoqueAtualizado = true;
+      }
+    }
+
+    if (estoqueAtualizado) {
+      await salvarProdutos(produtos);
+    }
+  } catch (error) {
+    console.error("Erro ao descontar estoque:", error);
+  }
+};
+
+// Devolver estoque ao excluir venda
+const devolverEstoqueDaVenda = async (compra: Compra): Promise<void> => {
+  try {
+    const produtos = await carregarProdutos();
+    let estoqueAtualizado = false;
+
+    for (const item of compra.itens) {
+      const produto = produtos.find((p) => p.id === item.produtoId);
+
+      if (produto && produto.estoque !== undefined) {
+        const quantidadeDevolver =
+          item.tipo === "caixa" && produto.unidadesPorCaixa
+            ? item.quantidade * produto.unidadesPorCaixa
+            : item.quantidade;
+
+        produto.estoque = produto.estoque + quantidadeDevolver;
+        estoqueAtualizado = true;
+      }
+    }
+
+    if (estoqueAtualizado) {
+      await salvarProdutos(produtos);
+    }
+  } catch (error) {
+    console.error("Erro ao devolver estoque:", error);
+  }
+};
+
+// NOVA FUNÇÃO: Adicionar entrada de estoque
+export const adicionarEntradaEstoque = async (
+  produtoId: string,
+  quantidade: number,
+  motivo: string = "Entrada de estoque"
+): Promise<void> => {
+  try {
+    const produtos = await carregarProdutos();
+    const produto = produtos.find((p) => p.id === produtoId);
+
+    if (!produto) {
+      throw new Error("Produto não encontrado");
+    }
+
+    const estoqueAnterior = produto.estoque || 0;
+    produto.estoque = estoqueAnterior + quantidade;
+
+    await salvarProdutos(produtos);
+  } catch (error) {
+    console.error("Erro ao adicionar entrada de estoque:", error);
+    throw error;
+  }
+};
+
+// NOVA FUNÇÃO: Ajuste manual de estoque
+export const ajustarEstoque = async (
+  produtoId: string,
+  novoEstoque: number,
+  motivo: string = "Ajuste manual"
+): Promise<void> => {
+  try {
+    const produtos = await carregarProdutos();
+    const produto = produtos.find((p) => p.id === produtoId);
+
+    if (!produto) {
+      throw new Error("Produto não encontrado");
+    }
+
+    produto.estoque = novoEstoque;
+    await salvarProdutos(produtos);
+  } catch (error) {
+    console.error("Erro ao ajustar estoque:", error);
+    throw error;
+  }
+};
+
+// NOVA FUNÇÃO: Verificar produtos com estoque baixo
+export const buscarProdutosEstoqueBaixo = async (): Promise<Produto[]> => {
+  try {
+    const produtos = await carregarProdutos();
+    return produtos.filter((p) => {
+      const minimo = p.estoqueMinimo || 5;
+      return p.estoque !== undefined && p.estoque <= minimo;
+    });
+  } catch (error) {
+    console.error("Erro ao buscar produtos com estoque baixo:", error);
+    return [];
+  }
+};
+
+// ==================== UTILIDADES ====================
+
+export const calcularTotalDevido = (compras: Compra[]): number => {
+  return compras
+    .filter((c) => !c.pago)
+    .reduce((total, compra) => total + compra.valorTotal, 0);
+};
+
+export const gerarId = (): string => {
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
 
 // ==================== DEBUG ====================

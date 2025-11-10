@@ -1,4 +1,4 @@
-// app/produtos/lista.tsx
+// app/produtos/lista.tsx - COM CONTROLE DE ESTOQUE
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -8,13 +8,18 @@ import { Produto } from '../../types';
 export default function ListaProdutos() {
     const router = useRouter();
     const [produtos, setProdutos] = useState<Produto[]>([]);
+    const [produtosEstoqueBaixo, setProdutosEstoqueBaixo] = useState<number>(0);
     const [loading, setLoading] = useState(true);
 
     const carregarDados = async () => {
         try {
             setLoading(true);
-            const produtosData = await storage.carregarProdutos();
+            const [produtosData, estoqueBaixoData] = await Promise.all([
+                storage.carregarProdutos(),
+                storage.buscarProdutosEstoqueBaixo(),
+            ]);
             setProdutos(produtosData);
+            setProdutosEstoqueBaixo(estoqueBaixoData.length);
         } catch (error) {
             Alert.alert('Erro', 'Não foi possível carregar os produtos.');
             console.error(error);
@@ -31,7 +36,6 @@ export default function ListaProdutos() {
 
     const handleProdutoPress = (produtoId: string) => {
         router.push(`/produtos/${produtoId}`);
-        console.log('Produto:', produtoId);
     };
 
     const handleProdutoLongPress = (produto: Produto) => {
@@ -61,6 +65,10 @@ export default function ListaProdutos() {
         router.push('/produtos/novo');
     };
 
+    const handleEntradaEstoque = () => {
+        router.push('/produtos/entrada-estoque');
+    };
+
     const formatarValor = (valor: number) => {
         return valor.toLocaleString('pt-BR', {
             style: 'currency',
@@ -68,49 +76,82 @@ export default function ListaProdutos() {
         });
     };
 
-    const renderProdutoCard = ({ item }: { item: Produto }) => (
-        <TouchableOpacity
-            style={styles.produtoCard}
-            onPress={() => handleProdutoPress(item.id)}
-            onLongPress={() => handleProdutoLongPress(item)}
-            activeOpacity={0.7}
-        >
-            <View style={styles.cardHeader}>
-                <Text style={styles.nomeProduto}>{item.nome}</Text>
-                {item.categoria && (
-                    <View style={styles.categoriaTag}>
-                        <Text style={styles.categoriaText}>{item.categoria}</Text>
-                    </View>
-                )}
-            </View>
+    const getEstoqueStatus = (produto: Produto) => {
+        if (produto.estoque === undefined) return 'sem-controle';
+        const minimo = produto.estoqueMinimo || 5;
+        if (produto.estoque === 0) return 'zerado';
+        if (produto.estoque <= minimo) return 'baixo';
+        return 'ok';
+    };
 
-            <View style={styles.cardBody}>
-                <View style={styles.precoContainer}>
-                    <Text style={styles.precoLabel}>Unidade</Text>
-                    <Text style={styles.precoValor}>{formatarValor(item.precoUnidade)}</Text>
+    const renderProdutoCard = ({ item }: { item: Produto }) => {
+        const status = getEstoqueStatus(item);
+
+        return (
+            <TouchableOpacity
+                style={styles.produtoCard}
+                onPress={() => handleProdutoPress(item.id)}
+                onLongPress={() => handleProdutoLongPress(item)}
+                activeOpacity={0.7}
+            >
+                <View style={styles.cardHeader}>
+                    <Text style={styles.nomeProduto}>{item.nome}</Text>
+                    {item.categoria && (
+                        <View style={styles.categoriaTag}>
+                            <Text style={styles.categoriaText}>{item.categoria}</Text>
+                        </View>
+                    )}
                 </View>
 
-                {item.precoCaixa && (
+                <View style={styles.cardBody}>
                     <View style={styles.precoContainer}>
-                        <Text style={styles.precoLabel}>Caixa</Text>
-                        <Text style={styles.precoValor}>{formatarValor(item.precoCaixa)}</Text>
+                        <Text style={styles.precoLabel}>Unidade</Text>
+                        <Text style={styles.precoValor}>{formatarValor(item.precoUnidade)}</Text>
                     </View>
-                )}
-            </View>
 
-            <View style={styles.cardFooter}>
-                {item.unidadesPorCaixa && (
-                    <Text style={styles.infoText}>📦 {item.unidadesPorCaixa} und/cx</Text>
-                )}
-                {item.pesoUnidade && (
-                    <Text style={styles.infoText}>⚖️ {item.pesoUnidade}kg</Text>
-                )}
-                {item.estoque !== undefined && (
-                    <Text style={styles.infoText}>📊 Estoque: {item.estoque}</Text>
-                )}
-            </View>
-        </TouchableOpacity>
-    );
+                    {item.precoCaixa && (
+                        <View style={styles.precoContainer}>
+                            <Text style={styles.precoLabel}>Caixa</Text>
+                            <Text style={styles.precoValor}>{formatarValor(item.precoCaixa)}</Text>
+                        </View>
+                    )}
+                </View>
+
+                <View style={styles.cardFooter}>
+                    {item.unidadesPorCaixa && (
+                        <Text style={styles.infoText}>📦 {item.unidadesPorCaixa} und/cx</Text>
+                    )}
+                    {item.pesoUnidade && (
+                        <Text style={styles.infoText}>⚖️ {item.pesoUnidade}kg</Text>
+                    )}
+                    
+                    {/* ESTOQUE COM BADGES */}
+                    {item.estoque !== undefined && (
+                        <View style={styles.estoqueContainer}>
+                            {status === 'zerado' && (
+                                <View style={styles.badgeZerado}>
+                                    <Text style={styles.badgeText}>🚫 Zerado</Text>
+                                </View>
+                            )}
+                            {status === 'baixo' && (
+                                <View style={styles.badgeBaixo}>
+                                    <Text style={styles.badgeText}>⚠️ Baixo</Text>
+                                </View>
+                            )}
+                            <Text style={[
+                                styles.estoqueValor,
+                                status === 'zerado' && styles.estoqueZerado,
+                                status === 'baixo' && styles.estoqueBaixo,
+                                status === 'ok' && { color: '#27ae60' }
+                            ]}>
+                                {item.estoque} und
+                            </Text>
+                        </View>
+                    )}
+                </View>
+            </TouchableOpacity>
+        );
+    };
 
     if (loading) {
         return (
@@ -135,6 +176,30 @@ export default function ListaProdutos() {
                 <Text style={styles.subtitulo}>
                     {produtos.length} {produtos.length === 1 ? 'produto cadastrado' : 'produtos cadastrados'}
                 </Text>
+
+                {/* ALERTA DE ESTOQUE BAIXO */}
+                {produtosEstoqueBaixo > 0 && (
+                    <TouchableOpacity 
+                        style={styles.alertaEstoque}
+                        onPress={handleEntradaEstoque}
+                    >
+                        <Text style={styles.alertaEstoqueText}>
+                            ⚠️ {produtosEstoqueBaixo} {produtosEstoqueBaixo === 1 ? 'produto com estoque baixo' : 'produtos com estoque baixo'}
+                        </Text>
+                    </TouchableOpacity>
+                )}
+            </View>
+
+            {/* BOTÃO DE ENTRADA DE ESTOQUE */}
+            <View style={styles.acoes}>
+                <TouchableOpacity
+                    style={styles.btnEntrada}
+                    onPress={handleEntradaEstoque}
+                    activeOpacity={0.8}
+                >
+                    <Text style={styles.btnEntradaIcon}>📦</Text>
+                    <Text style={styles.btnEntradaText}>Entrada de Estoque</Text>
+                </TouchableOpacity>
             </View>
 
             <FlatList
@@ -206,6 +271,43 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#666',
     },
+    alertaEstoque: {
+        backgroundColor: '#FFF3E0',
+        borderRadius: 8,
+        padding: 12,
+        marginTop: 12,
+        borderLeftWidth: 4,
+        borderLeftColor: '#f39c12',
+    },
+    alertaEstoqueText: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#f39c12',
+    },
+    acoes: {
+        padding: 16,
+    },
+    btnEntrada: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#007AFF',
+        borderRadius: 12,
+        padding: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    btnEntradaIcon: {
+        fontSize: 24,
+        marginRight: 12,
+    },
+    btnEntradaText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#fff',
+    },
     lista: {
         paddingVertical: 8,
     },
@@ -269,10 +371,43 @@ const styles = StyleSheet.create({
         paddingTop: 12,
         borderTopWidth: 1,
         borderTopColor: '#f0f0f0',
+        alignItems: 'center',
     },
     infoText: {
         fontSize: 13,
         color: '#666',
+    },
+    estoqueContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    badgeZerado: {
+        backgroundColor: '#FFEBEE',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 6,
+    },
+    badgeBaixo: {
+        backgroundColor: '#FFF3E0',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 6,
+    },
+    badgeText: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: '#666',
+    },
+    estoqueValor: {
+        fontSize: 13,
+        fontWeight: '600',
+    },
+    estoqueZerado: {
+        color: '#e74c3c',
+    },
+    estoqueBaixo: {
+        color: '#f39c12',
     },
     empty: {
         alignItems: 'center',
