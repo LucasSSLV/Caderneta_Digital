@@ -12,9 +12,10 @@ export interface Produto {
   categoria?: string;
   precoUnidade: number;
   precoCaixa?: number;
-  pesoUnidade?: number; // em kg ou g
+  pesoUnidade?: number;
   unidadesPorCaixa?: number;
   estoque?: number;
+  estoqueMinimo?: number; // Novo: define quando alertar (padrão: 5)
   dataCadastro: string;
 }
 

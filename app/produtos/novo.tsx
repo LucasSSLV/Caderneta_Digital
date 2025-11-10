@@ -137,6 +137,7 @@ export default function NovoProduto() {
                         <TextInput
                             style={styles.input}
                             placeholder="Ex: Arroz 5kg"
+                            placeholderTextColor={'#999'}
                             value={nome}
                             onChangeText={setNome}
                             autoFocus
@@ -149,6 +150,7 @@ export default function NovoProduto() {
                         <TextInput
                             style={styles.input}
                             placeholder="Ex: Grãos, Laticínios, Bebidas"
+                            placeholderTextColor={'#999'}
                             value={categoria}
                             onChangeText={setCategoria}
                             editable={!salvando}
@@ -193,6 +195,7 @@ export default function NovoProduto() {
                             <TextInput
                                 style={styles.input}
                                 placeholder="Ex: 5"
+                                placeholderTextColor={'#999'}
                                 value={pesoUnidade}
                                 onChangeText={setPesoUnidade}
                                 keyboardType="decimal-pad"
@@ -205,6 +208,7 @@ export default function NovoProduto() {
                             <TextInput
                                 style={styles.input}
                                 placeholder="Ex: 12"
+                                placeholderTextColor={'#999'}
                                 value={unidadesPorCaixa}
                                 onChangeText={setUnidadesPorCaixa}
                                 keyboardType="number-pad"
@@ -217,7 +221,8 @@ export default function NovoProduto() {
                         <Text style={styles.label}>Estoque Atual (opcional)</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="Quantidade em estoque"
+                            placeholder="Quantidade em estoque ex: 50"
+                            placeholderTextColor={'#999'}
                             value={estoque}
                             onChangeText={setEstoque}
                             keyboardType="number-pad"
@@ -307,6 +312,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         borderWidth: 1,
         borderColor: '#e0e0e0',
+        fontWeight: '700',
     },
     valorContainer: {
         flexDirection: 'row',
@@ -320,14 +326,14 @@ const styles = StyleSheet.create({
     cifrao: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#666',
+        color: '#0d9a43ff',
         marginRight: 6,
     },
     inputValor: {
         flex: 1,
         fontSize: 18,
         fontWeight: '600',
-        color: '#1a1a1a',
+        color: '#e90b0bff',
         padding: 14,
     },
     infoBox: {
