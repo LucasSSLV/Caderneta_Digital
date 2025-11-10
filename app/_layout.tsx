@@ -60,6 +60,20 @@ export default function RootLayout() {
           title: 'Pagas',
         }}
       />
+      {/* <Stack.Screen
+        name="compras/pagas"
+        options={{
+          title: 'Pagas',
+        }}
+      /> */}
+      <Stack.Screen
+        name="produtos/entrada-estoque"
+        options={{
+          title: 'Entrada de Estoque',
+          presentation: 'modal',
+        }}
+      />
     </Stack>
+
   );
 }
