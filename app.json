@@ -4,7 +4,7 @@
     "slug": "Caderneta_Digital",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/caderneta-icon.png",
     "scheme": "cadernetadigital",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,10 +13,10 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#00BF63",
+        "foregroundImage": "./assets/images/image.png",
+        // "backgroundImage": "./assets/images/fundo.png",
+        "monochromeImage": "./assets/images/mono.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -24,7 +24,7 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/caderneta-icon.png"
     },
     "plugins": [
       "expo-router",
