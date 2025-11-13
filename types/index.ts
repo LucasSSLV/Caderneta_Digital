@@ -37,3 +37,16 @@ export interface Compra {
   pago: boolean;
   observacao?: string;
 }
+
+export interface Movimentacao {
+  id: string;
+  produtoId: string;
+  nomeProduto: string;
+  tipo: 'entrada' | 'saida' | 'ajuste';
+  quantidade: number;
+  estoqueAnterior: number;
+  estoqueAtual: number;
+  motivo: string;
+  data: string;
+  usuarioId?: string;
+}
