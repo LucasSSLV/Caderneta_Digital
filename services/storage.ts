@@ -252,6 +252,70 @@ export const buscarProdutoPorId = async (
   }
 };
 
+// ==================== MOVIMENTAÇÕES ====================
+
+export const salvarMovimentacoes = async (movimentacoes: any[]): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(MOVIMENTACOES_KEY, JSON.stringify(movimentacoes));
+  } catch (error) {
+    console.error("Erro ao salvar movimentações:", error);
+    throw error;
+  }
+};
+
+export const carregarMovimentacoes = async (): Promise<any[]> => {
+  try {
+    const data = await AsyncStorage.getItem(MOVIMENTACOES_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    console.error("Erro ao carregar movimentações:", error);
+    return [];
+  }
+};
+
+const registrarMovimentacao = async (
+  produtoId: string,
+  nomeProduto: string,
+  tipo: 'entrada' | 'saida' | 'ajuste',
+  quantidade: number,
+  estoqueAnterior: number,
+  estoqueAtual: number,
+  motivo: string
+): Promise<void> => {
+  try {
+    const movimentacoes = await carregarMovimentacoes();
+    const novaMovimentacao = {
+      id: gerarId(),
+      produtoId,
+      nomeProduto,
+      tipo,
+      quantidade,
+      estoqueAnterior,
+      estoqueAtual,
+      motivo,
+      data: new Date().toISOString(),
+    };
+    movimentacoes.push(novaMovimentacao);
+    await salvarMovimentacoes(movimentacoes);
+  } catch (error) {
+    console.error("Erro ao registrar movimentação:", error);
+  }
+};
+
+export const buscarMovimentacoesPorProduto = async (
+  produtoId: string
+): Promise<any[]> => {
+  try {
+    const movimentacoes = await carregarMovimentacoes();
+    return movimentacoes
+      .filter((m) => m.produtoId === produtoId)
+      .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
+  } catch (error) {
+    console.error("Erro ao buscar movimentações:", error);
+    return [];
+  }
+};
+
 // ==================== CONTROLE DE ESTOQUE ====================
 
 // Descontar estoque ao registrar venda
@@ -269,8 +333,20 @@ const descontarEstoqueDaVenda = async (compra: Compra): Promise<void> => {
             ? item.quantidade * produto.unidadesPorCaixa
             : item.quantidade;
 
+        const estoqueAnterior = produto.estoque;
         produto.estoque = Math.max(0, produto.estoque - quantidadeDescontar);
         estoqueAtualizado = true;
+
+        // Registrar movimentação
+        await registrarMovimentacao(
+          produto.id,
+          produto.nome,
+          'saida',
+          quantidadeDescontar,
+          estoqueAnterior,
+          produto.estoque,
+          `Venda - Compra #${compra.id.substring(0, 8)}`
+        );
       }
     }
 
@@ -297,8 +373,20 @@ const devolverEstoqueDaVenda = async (compra: Compra): Promise<void> => {
             ? item.quantidade * produto.unidadesPorCaixa
             : item.quantidade;
 
+        const estoqueAnterior = produto.estoque;
         produto.estoque = produto.estoque + quantidadeDevolver;
         estoqueAtualizado = true;
+
+        // Registrar movimentação
+        await registrarMovimentacao(
+          produto.id,
+          produto.nome,
+          'entrada',
+          quantidadeDevolver,
+          estoqueAnterior,
+          produto.estoque,
+          `Devolução - Compra #${compra.id.substring(0, 8)} excluída`
+        );
       }
     }
 
@@ -328,12 +416,22 @@ export const adicionarEntradaEstoque = async (
     produto.estoque = estoqueAnterior + quantidade;
 
     await salvarProdutos(produtos);
+
+    // Registrar movimentação
+    await registrarMovimentacao(
+      produto.id,
+      produto.nome,
+      'entrada',
+      quantidade,
+      estoqueAnterior,
+      produto.estoque,
+      motivo
+    );
   } catch (error) {
     console.error("Erro ao adicionar entrada de estoque:", error);
     throw error;
   }
 };
-
 // NOVA FUNÇÃO: Ajuste manual de estoque
 export const ajustarEstoque = async (
   produtoId: string,
