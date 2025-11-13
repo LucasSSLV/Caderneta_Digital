@@ -113,7 +113,7 @@ export default function Index() {
     <View style={styles.container}>
       <StatusBar style="dark" />
 
-<View style={styles.header}>
+      <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
             <Text style={styles.titulo}>📓 Caderneta Digital</Text>
@@ -256,18 +256,33 @@ export default function Index() {
         {/* Ações Rápidas */}
         <View style={styles.actionsContainer}>
           <Text style={styles.sectionTitle}>Ações Rápidas</Text>
-
+          {/* novo cliente */}
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => router.push('/clientes/novo')}
             activeOpacity={0.8}
           >
             <View style={styles.actionIcon}>
-              <Text style={styles.actionIconText}>➕</Text>
+              <Text style={styles.actionIconText}>📚</Text>
             </View>
             <View style={styles.actionContent}>
               <Text style={styles.actionTitle}>Novo Cliente</Text>
               <Text style={styles.actionSubtitle}>Cadastrar um novo cliente</Text>
+            </View>
+            <Text style={styles.actionArrow}>›</Text>
+          </TouchableOpacity>
+          {/* histórico de produtos */}
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => router.push('/produtos/historico-movimentacoes')}
+            activeOpacity={0.8}
+          >
+            <View style={styles.actionIcon}>
+              <Text style={styles.actionIconText}>📋</Text>
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={styles.actionTitle}>Histórico de Movimentações</Text>
+              <Text style={styles.actionSubtitle}>Histórico de movimentações de produtos</Text>
             </View>
             <Text style={styles.actionArrow}>›</Text>
           </TouchableOpacity>
@@ -478,6 +493,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 24,
     paddingBottom: 24,
+    gap: 12,
   },
   actionButton: {
     flexDirection: 'row',
