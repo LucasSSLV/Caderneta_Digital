@@ -14,7 +14,7 @@ export default function Index() {
   const [loading, setLoading] = useState(true);
   const [produtosEstoqueBaixo, setProdutosEstoqueBaixo] = useState(0);
 
-// adicionando contagem de produtos com estoque baixo
+  // adicionando contagem de produtos com estoque baixo
   const carregarDados = async () => {
     try {
       setLoading(true);
@@ -113,16 +113,26 @@ export default function Index() {
     <View style={styles.container}>
       <StatusBar style="dark" />
 
-      <View style={styles.header}>
-        <Text style={styles.titulo}>📓 Caderneta Digital</Text>
-        <Text style={styles.subtitulo}>Bem-vindo de volta!</Text>
-      </View>
+<View style={styles.header}>
+        <View style={styles.headerContent}>
+          <View>
+            <Text style={styles.titulo}>📓 Caderneta Digital</Text>
+            <Text style={styles.subtitulo}>Bem-vindo de volta!</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.btnConfig}
+            onPress={() => router.push('/configuracoes')}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.btnConfigText}>⚙️</Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* <ScrollView style={styles.content} showsVerticalScrollIndicator={false}> */}
+      </View>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* ALERTA DE ESTOQUE BAIXO */}
         {produtosEstoqueBaixo > 0 && (
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.alertaEstoque}
             onPress={() => router.push('/produtos/entrada-estoque')}
             activeOpacity={0.7}
@@ -243,7 +253,6 @@ export default function Index() {
             </TouchableOpacity>
           </View>
         </View>
-
         {/* Ações Rápidas */}
         <View style={styles.actionsContainer}>
           <Text style={styles.sectionTitle}>Ações Rápidas</Text>
@@ -269,7 +278,22 @@ export default function Index() {
 }
 
 const styles = StyleSheet.create({
-  
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  btnConfig: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#E3F2FD',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btnConfigText: {
+    fontSize: 20,
+  },
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
