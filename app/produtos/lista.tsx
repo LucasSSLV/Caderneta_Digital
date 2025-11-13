@@ -243,14 +243,27 @@ export default function ListaProdutos() {
 
             {/* BOTÃO DE ENTRADA DE ESTOQUE */}
             <View style={styles.acoes}>
-                <TouchableOpacity
-                    style={styles.btnEntrada}
-                    onPress={handleEntradaEstoque}
-                    activeOpacity={0.8}
-                >
-                    <Text style={styles.btnEntradaIcon}>📦</Text>
-                    <Text style={styles.btnEntradaText}>Entrada de Estoque</Text>
-                </TouchableOpacity>
+                {/* BOTÃO DE ENTRADA DE ESTOQUE */}
+                <View style={styles.acoes}>
+                    <TouchableOpacity
+                        style={styles.btnEntrada}
+                        onPress={handleEntradaEstoque}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={styles.btnEntradaIcon}>📦</Text>
+                        <Text style={styles.btnEntradaText}>Entrada de Estoque</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.btnHistorico}
+                        onPress={() => router.push('/produtos/historico-movimentacoes')}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={styles.btnHistoricoIcon}>📋</Text>
+                        <Text style={styles.btnHistoricoText}>Histórico de Movimentações</Text>
+                    </TouchableOpacity>
+                </View>
+
             </View>
 
             <FlatList
@@ -276,11 +289,34 @@ export default function ListaProdutos() {
             >
                 <Text style={styles.fabText}>+</Text>
             </TouchableOpacity>
+
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+    btnHistorico: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#4CAF50',
+        borderRadius: 12,
+        padding: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+        marginTop: 12,
+    },
+    btnHistoricoIcon: {
+        fontSize: 24,
+        marginRight: 12,
+    },
+    btnHistoricoText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#fff',
+    },
     btnExcluir: {
         marginTop: 12,
         padding: 8,
