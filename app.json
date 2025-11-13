@@ -4,7 +4,7 @@
     "slug": "Caderneta_Digital",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/caderneta-icon.png",
+    "icon": "./assets/images/image.png",
     "scheme": "cadernetadigital",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -15,7 +15,6 @@
       "adaptiveIcon": {
         "backgroundColor": "#00BF63",
         "foregroundImage": "./assets/images/image.png",
-        // "backgroundImage": "./assets/images/fundo.png",
         "monochromeImage": "./assets/images/mono.png"
       },
       "edgeToEdgeEnabled": true,
@@ -24,7 +23,7 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/caderneta-icon.png"
+      "favicon": "./assets/images/image.png"
     },
     "plugins": [
       "expo-router",
@@ -44,6 +43,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c28d16d9-bc83-4474-b2e2-b98d453b9479"
+      }
     }
   }
 }
