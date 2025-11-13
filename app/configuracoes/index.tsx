@@ -1,0 +1,647 @@
+// app/configuracoes/index.tsx
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import * as storage from "../../services/storage";
+
+export default function Configuracoes() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [tamanhoArmazenamento, setTamanhoArmazenamento] = useState(0);
+  const [estatisticas, setEstatisticas] = useState({
+    clientes: 0,
+    compras: 0,
+    produtos: 0,
+    movimentacoes: 0,
+  });
+  const [configuracoes, setConfiguracoes] = useState({
+    manterMovimentacoes: true,
+    diasRetencao: 90,
+    limparAutomaticamente: false,
+  });
+
+  useEffect(() => {
+    carregarDados();
+    carregarConfiguracoes();
+  }, []);
+
+  const carregarDados = async () => {
+    try {
+      setLoading(true);
+      const [clientes, compras, produtos, movimentacoes] = await Promise.all([
+        storage.carregarClientes(),
+        storage.carregarCompras(),
+        storage.carregarProdutos(),
+        storage.carregarMovimentacoes(),
+      ]);
+
+      setEstatisticas({
+        clientes: clientes.length,
+        compras: compras.length,
+        produtos: produtos.length,
+        movimentacoes: movimentacoes.length,
+      });
+
+      // Calcular tamanho aproximado
+      const tamanho =
+        JSON.stringify(clientes).length +
+        JSON.stringify(compras).length +
+        JSON.stringify(produtos).length +
+        JSON.stringify(movimentacoes).length;
+
+      setTamanhoArmazenamento(tamanho / 1024); // KB
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const carregarConfiguracoes = async () => {
+    try {
+      const config = await AsyncStorage.getItem("@caderneta:configuracoes");
+      if (config) {
+        setConfiguracoes(JSON.parse(config));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const salvarConfiguracoes = async (novasConfig: any) => {
+    try {
+      await AsyncStorage.setItem(
+        "@caderneta:configuracoes",
+        JSON.stringify(novasConfig)
+      );
+      setConfiguracoes(novasConfig);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const limparMovimentacoesAntigas = async () => {
+    Alert.alert(
+      "Limpar Movimentações Antigas",
+      `Deseja remover movimentações com mais de ${configuracoes.diasRetencao} dias?\n\nEsta ação não pode ser desfeita.`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Limpar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const movimentacoes = await storage.carregarMovimentacoes();
+              const dataLimite = new Date();
+              dataLimite.setDate(
+                dataLimite.getDate() - configuracoes.diasRetencao
+              );
+
+              const movimentacoesFiltradas = movimentacoes.filter(
+                (m) => new Date(m.data) > dataLimite
+              );
+
+              const removidas =
+                movimentacoes.length - movimentacoesFiltradas.length;
+
+              await storage.salvarMovimentacoes(movimentacoesFiltradas);
+              await carregarDados();
+
+              Alert.alert(
+                "Sucesso",
+                `${removidas} movimentações antigas foram removidas.`
+              );
+            } catch (error) {
+              Alert.alert("Erro", "Não foi possível limpar as movimentações.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const limparComprasPagas = async () => {
+    Alert.alert(
+      "Arquivar Compras Pagas",
+      "Deseja arquivar todas as compras já pagas?\n\nIsso reduzirá o tamanho do app. Os dados não serão perdidos, mas não aparecerão mais nas listagens.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Arquivar",
+          style: "default",
+          onPress: async () => {
+            try {
+              const compras = await storage.carregarCompras();
+              const comprasPagas = compras.filter((c) => c.pago);
+              const comprasAtivas = compras.filter((c) => !c.pago);
+
+              // Salvar compras pagas em arquivo separado
+              await AsyncStorage.setItem(
+                "@caderneta:compras_arquivadas",
+                JSON.stringify(comprasPagas)
+              );
+
+              // Manter só as ativas
+              await storage.salvarCompras(comprasAtivas);
+              await carregarDados();
+
+              Alert.alert(
+                "Sucesso",
+                `${comprasPagas.length} compras pagas foram arquivadas.`
+              );
+            } catch (error) {
+              Alert.alert("Erro", "Não foi possível arquivar as compras.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const limparTodosOsDados = async () => {
+    Alert.alert(
+      "⚠️ ATENÇÃO",
+      "Deseja APAGAR TODOS OS DADOS?\n\nClientes, Produtos, Compras e Movimentações serão PERMANENTEMENTE removidos.\n\nEsta ação NÃO PODE SER DESFEITA!",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "APAGAR TUDO",
+          style: "destructive",
+          onPress: () => {
+            Alert.alert(
+              "Confirmação Final",
+              "Tem ABSOLUTA CERTEZA?\n\nDigite OK para confirmar.",
+              [
+                { text: "Cancelar", style: "cancel" },
+                {
+                  text: "SIM, APAGAR",
+                  style: "destructive",
+                  onPress: async () => {
+                    try {
+                      await storage.limparTodosDados();
+                      await carregarDados();
+                      Alert.alert(
+                        "Concluído",
+                        "Todos os dados foram removidos."
+                      );
+                    } catch (error) {
+                      Alert.alert("Erro", "Não foi possível limpar os dados.");
+                    }
+                  },
+                },
+              ]
+            );
+          },
+        },
+      ]
+    );
+  };
+
+  const restaurarComprasArquivadas = async () => {
+    try {
+      const arquivadas = await AsyncStorage.getItem(
+        "@caderneta:compras_arquivadas"
+      );
+      if (!arquivadas) {
+        Alert.alert("Informação", "Não há compras arquivadas para restaurar.");
+        return;
+      }
+
+      Alert.alert(
+        "Restaurar Compras",
+        "Deseja restaurar todas as compras arquivadas?",
+        [
+          { text: "Cancelar", style: "cancel" },
+          {
+            text: "Restaurar",
+            onPress: async () => {
+              try {
+                const comprasArquivadas = JSON.parse(arquivadas);
+                const comprasAtivas = await storage.carregarCompras();
+                const todasCompras = [...comprasAtivas, ...comprasArquivadas];
+
+                await storage.salvarCompras(todasCompras);
+                await AsyncStorage.removeItem("@caderneta:compras_arquivadas");
+                await carregarDados();
+
+                Alert.alert(
+                  "Sucesso",
+                  `${comprasArquivadas.length} compras foram restauradas.`
+                );
+              } catch (error) {
+                Alert.alert("Erro", "Não foi possível restaurar as compras.");
+              }
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const formatarTamanho = (kb: number) => {
+    if (kb < 1024) {
+      return `${kb.toFixed(2)} KB`;
+    }
+    return `${(kb / 1024).toFixed(2)} MB`;
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+        <Text style={styles.loadingText}>Carregando...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.btnVoltar}
+        >
+          <Text style={styles.btnVoltarText}>← Voltar</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.titulo}>⚙️ Configurações</Text>
+        <Text style={styles.subtitulo}>
+          Gerenciamento de dados e preferências
+        </Text>
+      </View>
+
+      <ScrollView style={styles.content}>
+        {/* Uso de Armazenamento */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>💾 Uso de Armazenamento</Text>
+
+          <View style={styles.storageCard}>
+            <View style={styles.storageHeader}>
+              <Text style={styles.storageSize}>
+                {formatarTamanho(tamanhoArmazenamento)}
+              </Text>
+              <Text style={styles.storageLabel}>em uso</Text>
+            </View>
+
+            <View style={styles.statsGrid}>
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>{estatisticas.clientes}</Text>
+                <Text style={styles.statLabel}>Clientes</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>{estatisticas.compras}</Text>
+                <Text style={styles.statLabel}>Compras</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>{estatisticas.produtos}</Text>
+                <Text style={styles.statLabel}>Produtos</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>
+                  {estatisticas.movimentacoes}
+                </Text>
+                <Text style={styles.statLabel}>Movimentações</Text>
+              </View>
+            </View>
+
+            {tamanhoArmazenamento > 500 && (
+              <View style={styles.warningBox}>
+                <Text style={styles.warningText}>
+                  ⚠️ Seu armazenamento está ficando grande. Considere limpar
+                  dados antigos.
+                </Text>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Preferências */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🎛️ Preferências</Text>
+
+          <View style={styles.preferenceCard}>
+            <View style={styles.preferenceRow}>
+              <View style={styles.preferenceInfo}>
+                <Text style={styles.preferenceTitle}>Manter Histórico</Text>
+                <Text style={styles.preferenceDescription}>
+                  Guardar histórico de movimentações de estoque
+                </Text>
+              </View>
+              <Switch
+                value={configuracoes.manterMovimentacoes}
+                onValueChange={(value) =>
+                  salvarConfiguracoes({
+                    ...configuracoes,
+                    manterMovimentacoes: value,
+                  })
+                }
+              />
+            </View>
+          </View>
+        </View>
+
+        {/* Limpeza de Dados */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🗑️ Limpeza de Dados</Text>
+
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={limparMovimentacoesAntigas}
+            activeOpacity={0.7}
+          >
+            <View style={styles.actionIcon}>
+              <Text style={styles.actionIconText}>🧹</Text>
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={styles.actionTitle}>
+                Limpar Movimentações Antigas
+              </Text>
+              <Text style={styles.actionDescription}>
+                Remove movimentações com mais de {configuracoes.diasRetencao}{" "}
+                dias
+              </Text>
+            </View>
+            <Text style={styles.actionArrow}>›</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={limparComprasPagas}
+            activeOpacity={0.7}
+          >
+            <View style={styles.actionIcon}>
+              <Text style={styles.actionIconText}>📦</Text>
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={styles.actionTitle}>Arquivar Compras Pagas</Text>
+              <Text style={styles.actionDescription}>
+                Move compras pagas para arquivo separado
+              </Text>
+            </View>
+            <Text style={styles.actionArrow}>›</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={restaurarComprasArquivadas}
+            activeOpacity={0.7}
+          >
+            <View style={styles.actionIcon}>
+              <Text style={styles.actionIconText}>↩️</Text>
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={styles.actionTitle}>
+                Restaurar Compras Arquivadas
+              </Text>
+              <Text style={styles.actionDescription}>
+                Traz de volta compras que foram arquivadas
+              </Text>
+            </View>
+            <Text style={styles.actionArrow}>›</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Zona de Perigo */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, styles.dangerTitle]}>
+            ⚠️ Zona de Perigo
+          </Text>
+
+          <TouchableOpacity
+            style={[styles.actionCard, styles.dangerCard]}
+            onPress={limparTodosOsDados}
+            activeOpacity={0.7}
+          >
+            <View style={[styles.actionIcon, styles.dangerIcon]}>
+              <Text style={styles.actionIconText}>🗑️</Text>
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={[styles.actionTitle, styles.dangerText]}>
+                Apagar Todos os Dados
+              </Text>
+              <Text style={styles.actionDescription}>
+                Remove permanentemente todos os dados do app
+              </Text>
+            </View>
+            <Text style={styles.actionArrow}>›</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#666",
+  },
+  header: {
+    backgroundColor: "#fff",
+    paddingTop: 60,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e0e0e0",
+  },
+  btnVoltar: {
+    marginBottom: 12,
+  },
+  btnVoltarText: {
+    fontSize: 16,
+    color: "#007AFF",
+    fontWeight: "500",
+  },
+  titulo: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#1a1a1a",
+    marginBottom: 4,
+  },
+  subtitulo: {
+    fontSize: 14,
+    color: "#666",
+  },
+  content: {
+    flex: 1,
+  },
+  section: {
+    padding: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#1a1a1a",
+    marginBottom: 16,
+  },
+  dangerTitle: {
+    color: "#e74c3c",
+  },
+  storageCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  storageHeader: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  storageSize: {
+    fontSize: 36,
+    fontWeight: "700",
+    color: "#007AFF",
+  },
+  storageLabel: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4,
+  },
+  statsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginBottom: 16,
+  },
+  statItem: {
+    flex: 1,
+    minWidth: "45%",
+    alignItems: "center",
+    padding: 12,
+    backgroundColor: "#f5f5f5",
+    borderRadius: 8,
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#1a1a1a",
+  },
+  statLabel: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 4,
+  },
+  warningBox: {
+    backgroundColor: "#FFF3E0",
+    borderRadius: 8,
+    padding: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: "#f39c12",
+  },
+  warningText: {
+    fontSize: 13,
+    color: "#f39c12",
+    lineHeight: 18,
+  },
+  preferenceCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  preferenceRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  preferenceInfo: {
+    flex: 1,
+    marginRight: 16,
+  },
+  preferenceTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1a1a1a",
+    marginBottom: 4,
+  },
+  preferenceDescription: {
+    fontSize: 13,
+    color: "#666",
+    lineHeight: 18,
+  },
+  actionCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  dangerCard: {
+    borderWidth: 2,
+    borderColor: "#FFEBEE",
+  },
+  actionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#E3F2FD",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 16,
+  },
+  dangerIcon: {
+    backgroundColor: "#FFEBEE",
+  },
+  actionIconText: {
+    fontSize: 24,
+  },
+  actionContent: {
+    flex: 1,
+  },
+  actionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1a1a1a",
+    marginBottom: 4,
+  },
+  dangerText: {
+    color: "#e74c3c",
+  },
+  actionDescription: {
+    fontSize: 13,
+    color: "#666",
+    lineHeight: 18,
+  },
+  actionArrow: {
+    fontSize: 28,
+    color: "#ccc",
+    fontWeight: "300",
+  },
+});

@@ -12,24 +12,46 @@ export default function Index() {
   const [compras, setCompras] = useState<Compra[]>([]);
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [produtosEstoqueBaixo, setProdutosEstoqueBaixo] = useState(0);
 
+  // adicionando contagem de produtos com estoque baixo
   const carregarDados = async () => {
     try {
       setLoading(true);
-      const [clientesData, comprasData, produtosData] = await Promise.all([
+      const [clientesData, comprasData, produtosData, estoqueBaixo] = await Promise.all([
         storage.carregarClientes(),
         storage.carregarCompras(),
         storage.carregarProdutos(),
+        storage.buscarProdutosEstoqueBaixo(),
       ]);
       setClientes(clientesData);
       setCompras(comprasData);
       setProdutos(produtosData);
+      setProdutosEstoqueBaixo(estoqueBaixo.length);
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
   };
+
+  // const carregarDados = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const [clientesData, comprasData, produtosData] = await Promise.all([
+  //       storage.carregarClientes(),
+  //       storage.carregarCompras(),
+  //       storage.carregarProdutos(),
+  //     ]);
+  //     setClientes(clientesData);
+  //     setCompras(comprasData);
+  //     setProdutos(produtosData);
+  //   } catch (error) {
+  //     console.error(error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   useFocusEffect(
     useCallback(() => {
@@ -91,12 +113,44 @@ export default function Index() {
     <View style={styles.container}>
       <StatusBar style="dark" />
 
-      <View style={styles.header}>
-        <Text style={styles.titulo}>📓 Caderneta Digital</Text>
-        <Text style={styles.subtitulo}>Bem-vindo de volta!</Text>
-      </View>
+<View style={styles.header}>
+        <View style={styles.headerContent}>
+          <View>
+            <Text style={styles.titulo}>📓 Caderneta Digital</Text>
+            <Text style={styles.subtitulo}>Bem-vindo de volta!</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.btnConfig}
+            onPress={() => router.push('/configuracoes')}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.btnConfigText}>⚙️</Text>
+          </TouchableOpacity>
+        </View>
 
+      </View>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* ALERTA DE ESTOQUE BAIXO */}
+        {produtosEstoqueBaixo > 0 && (
+          <TouchableOpacity
+            style={styles.alertaEstoque}
+            onPress={() => router.push('/produtos/entrada-estoque')}
+            activeOpacity={0.7}
+          >
+            <View style={styles.alertaIconContainer}>
+              <Text style={styles.alertaIcon}>⚠️</Text>
+            </View>
+            <View style={styles.alertaContent}>
+              <Text style={styles.alertaTitulo}>Atenção: Estoque Baixo!</Text>
+              <Text style={styles.alertaTexto}>
+                {produtosEstoqueBaixo} {produtosEstoqueBaixo === 1 ? 'produto precisa' : 'produtos precisam'} de reposição
+              </Text>
+            </View>
+            <Text style={styles.alertaSeta}>›</Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Cards de Estatísticas Principais */}
         {/* Cards de Estatísticas Principais */}
         <View style={styles.statsContainer}>
           <View style={[styles.statCard, styles.statCardLarge]}>
@@ -199,7 +253,6 @@ export default function Index() {
             </TouchableOpacity>
           </View>
         </View>
-
         {/* Ações Rápidas */}
         <View style={styles.actionsContainer}>
           <Text style={styles.sectionTitle}>Ações Rápidas</Text>
@@ -225,6 +278,22 @@ export default function Index() {
 }
 
 const styles = StyleSheet.create({
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  btnConfig: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#E3F2FD',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btnConfigText: {
+    fontSize: 20,
+  },
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
@@ -259,6 +328,52 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  alertaEstoque: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF3E0',
+    marginHorizontal: 16,
+    marginTop: 16,
+    padding: 16,
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#f39c12',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  alertaIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FFE0B2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  alertaIcon: {
+    fontSize: 24,
+  },
+  alertaContent: {
+    flex: 1,
+  },
+  alertaTitulo: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#f39c12',
+    marginBottom: 4,
+  },
+  alertaTexto: {
+    fontSize: 13,
+    color: '#666',
+  },
+  alertaSeta: {
+    fontSize: 28,
+    color: '#f39c12',
+    fontWeight: '300',
   },
   statsContainer: {
     flexDirection: 'row',

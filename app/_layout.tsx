@@ -60,6 +60,33 @@ export default function RootLayout() {
           title: 'Pagas',
         }}
       />
+      <Stack.Screen
+        name="produtos/entrada-estoque"
+        options={{
+          title: 'Entrada de Estoque',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="produtos/historico-movimentacoes"
+        options={{
+          title: 'Histórico de Movimentações',
+        }}
+      />
+      <Stack.Screen
+        name="relatorios/exportar"
+        options={{
+          title: 'Exportar Relatórios',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="configuracoes/index"
+        options={{
+          title: 'Configurações',
+        }}
+      />
     </Stack>
+
   );
 }

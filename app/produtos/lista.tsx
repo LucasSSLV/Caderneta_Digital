@@ -10,6 +10,7 @@ export default function ListaProdutos() {
     const [produtos, setProdutos] = useState<Produto[]>([]);
     const [produtosEstoqueBaixo, setProdutosEstoqueBaixo] = useState<number>(0);
     const [loading, setLoading] = useState(true);
+    // const [salvando, setSalvando] = useState(false);
 
     const carregarDados = async () => {
         try {
@@ -40,23 +41,58 @@ export default function ListaProdutos() {
 
     const handleProdutoLongPress = (produto: Produto) => {
         Alert.alert(
-            'Excluir Produto',
-            `Deseja excluir ${produto.nome}?`,
+            produto.nome,
+            'O que você deseja fazer?',
+            [
+                {
+                    text: 'Editar',
+                    onPress: () => router.push(`/produtos/${produto.id}`),
+                },
+                {
+                    text: 'Excluir',
+                    style: 'destructive',
+                    onPress: () => confirmarExclusao(produto),
+                },
+                { text: 'Cancelar', style: 'cancel' },
+            ],
+            { cancelable: true }
+        );
+    };
+
+    const confirmarExclusao = async (produto: Produto) => {
+        // Verifica se o produto foi usado em alguma compra
+        const compras = await storage.carregarCompras();
+        const produtoEmUso = compras.some(compra =>
+            compra.itens?.some(item => item.produtoId === produto.id)
+        );
+
+        const mensagem = produtoEmUso
+            ? `Atenção! ${produto.nome} foi usado em compras registradas.\n\nDeseja excluir mesmo assim? As compras não serão afetadas, mas o histórico do produto será perdido.`
+            : `Tem certeza que deseja excluir o produto: ${produto.nome}?\n\nEsta ação não pode ser desfeita.`;
+
+        Alert.alert(
+            'Confirmar Exclusão',
+            mensagem,
             [
                 { text: 'Cancelar', style: 'cancel' },
                 {
-                    text: 'Excluir',
+                    text: 'Excluir Definitivamente',
                     style: 'destructive',
                     onPress: async () => {
                         try {
                             await storage.excluirProduto(produto.id);
+                            // Atualiza o estado localmente para uma resposta mais rápida da UI
+                            setProdutos(prev => prev.filter(p => p.id !== produto.id));
+                            Alert.alert('Sucesso', `${produto.nome} foi excluído.`);
+                            // Recarrega os dados para garantir consistência
                             await carregarDados();
-                            Alert.alert('Sucesso', 'Produto excluído com sucesso!');
                         } catch (error) {
                             Alert.alert('Erro', 'Não foi possível excluir o produto.');
+                            // Se der erro, recarrega os dados para garantir consistência
+                            await carregarDados();
                         }
-                    }
-                }
+                    },
+                },
             ]
         );
     };
@@ -84,6 +120,10 @@ export default function ListaProdutos() {
         return 'ok';
     };
 
+    const handleExcluirProduto = (produto: Produto) => {
+        confirmarExclusao(produto);
+    }
+
     const renderProdutoCard = ({ item }: { item: Produto }) => {
         const status = getEstoqueStatus(item);
 
@@ -94,6 +134,7 @@ export default function ListaProdutos() {
                 onLongPress={() => handleProdutoLongPress(item)}
                 activeOpacity={0.7}
             >
+
                 <View style={styles.cardHeader}>
                     <Text style={styles.nomeProduto}>{item.nome}</Text>
                     {item.categoria && (
@@ -124,7 +165,7 @@ export default function ListaProdutos() {
                     {item.pesoUnidade && (
                         <Text style={styles.infoText}>⚖️ {item.pesoUnidade}kg</Text>
                     )}
-                    
+
                     {/* ESTOQUE COM BADGES */}
                     {item.estoque !== undefined && (
                         <View style={styles.estoqueContainer}>
@@ -148,7 +189,16 @@ export default function ListaProdutos() {
                             </Text>
                         </View>
                     )}
+                    <TouchableOpacity
+                        onPress={() => handleExcluirProduto(item)}
+                        style={styles.btnExcluir}
+                    // disabled={salvando}
+                    >
+                        <Text style={styles.btnExcluirText}>🗑️ Excluir Produto</Text>
+                    </TouchableOpacity>
+
                 </View>
+
             </TouchableOpacity>
         );
     };
@@ -179,7 +229,7 @@ export default function ListaProdutos() {
 
                 {/* ALERTA DE ESTOQUE BAIXO */}
                 {produtosEstoqueBaixo > 0 && (
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles.alertaEstoque}
                         onPress={handleEntradaEstoque}
                     >
@@ -188,18 +238,32 @@ export default function ListaProdutos() {
                         </Text>
                     </TouchableOpacity>
                 )}
+
             </View>
 
             {/* BOTÃO DE ENTRADA DE ESTOQUE */}
             <View style={styles.acoes}>
-                <TouchableOpacity
-                    style={styles.btnEntrada}
-                    onPress={handleEntradaEstoque}
-                    activeOpacity={0.8}
-                >
-                    <Text style={styles.btnEntradaIcon}>📦</Text>
-                    <Text style={styles.btnEntradaText}>Entrada de Estoque</Text>
-                </TouchableOpacity>
+                {/* BOTÃO DE ENTRADA DE ESTOQUE */}
+                <View style={styles.acoes}>
+                    <TouchableOpacity
+                        style={styles.btnEntrada}
+                        onPress={handleEntradaEstoque}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={styles.btnEntradaIcon}>📦</Text>
+                        <Text style={styles.btnEntradaText}>Entrada de Estoque</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.btnHistorico}
+                        onPress={() => router.push('/produtos/historico-movimentacoes')}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={styles.btnHistoricoIcon}>📋</Text>
+                        <Text style={styles.btnHistoricoText}>Histórico de Movimentações</Text>
+                    </TouchableOpacity>
+                </View>
+
             </View>
 
             <FlatList
@@ -225,11 +289,44 @@ export default function ListaProdutos() {
             >
                 <Text style={styles.fabText}>+</Text>
             </TouchableOpacity>
+
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+    btnHistorico: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#4CAF50',
+        borderRadius: 12,
+        padding: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+        marginTop: 12,
+    },
+    btnHistoricoIcon: {
+        fontSize: 24,
+        marginRight: 12,
+    },
+    btnHistoricoText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#fff',
+    },
+    btnExcluir: {
+        marginTop: 12,
+        padding: 8,
+        borderRadius: 4,
+    },
+    btnExcluirText: {
+        color: '#e74c3c',
+        fontSize: 14,
+        fontWeight: '600',
+    },
     container: {
         flex: 1,
         backgroundColor: '#f5f5f5',
