@@ -147,6 +147,7 @@ export default function Relatorios() {
 
     return (
         <View style={styles.container}>
+            {/* header relatorios/exportar */}
             <View style={styles.header}>
                 <TouchableOpacity
                     onPress={() => router.back()}
@@ -155,10 +156,20 @@ export default function Relatorios() {
                     <Text style={styles.btnVoltarText}>← Voltar</Text>
                 </TouchableOpacity>
 
-                <Text style={styles.titulo}>📊 Relatórios</Text>
-                <Text style={styles.subtitulo}>Estatísticas do seu negócio</Text>
+                <View style={styles.headerContent}>
+                    <View>
+                        <Text style={styles.titulo}>📊 Relatórios</Text>
+                        <Text style={styles.subtitulo}>Estatísticas do seu negócio</Text>
+                    </View>
+                    <TouchableOpacity
+                        style={styles.btnExportar}
+                        onPress={() => router.push('/relatorios/exportar')}
+                        activeOpacity={0.7}
+                    >
+                        <Text style={styles.btnExportarText}>📤 Exportar</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Estatísticas Gerais */}
                 <View style={styles.section}>
@@ -270,6 +281,22 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f5f5f5',
+    },
+    headerContent: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    btnExportar: {
+        backgroundColor: '#007AFF',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 8,
+    },
+
+    btnExportarText: {
+        color: '#fff',
+        fontWeight: '600',
     },
     loadingContainer: {
         flex: 1,
