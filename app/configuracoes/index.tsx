@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import * as authService from "../../services/auth";
 import * as storage from "../../services/storage";
 
 export default function Configuracoes() {
@@ -29,11 +30,44 @@ export default function Configuracoes() {
     diasRetencao: 90,
     limparAutomaticamente: false,
   });
+  const [authAtiva, setAuthAtiva] = useState(false);
 
   useEffect(() => {
     carregarDados();
     carregarConfiguracoes();
+    const verificarAuth = async () => {
+      const ativa = await authService.autenticacaoEstaAtiva();
+      setAuthAtiva(ativa);
+    };
+    verificarAuth();
   }, []);
+
+  const handleConfigurarPIN = () => {
+    router.push('/configuracoes/configurar-pin');
+  };
+
+  const handleDesativarPIN = async () => {
+    Alert.alert(
+      'Desativar PIN',
+      'Tem certeza que deseja desativar a proteção por PIN?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Desativar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await authService.desativarAutenticacao();
+              setAuthAtiva(false);
+              Alert.alert('Sucesso', 'PIN desativado com sucesso!');
+            } catch (error) {
+              Alert.alert('Erro', 'Não foi possível desativar o PIN.');
+            }
+          },
+        },
+      ]
+    );
+  };
 
   const carregarDados = async () => {
     try {
@@ -350,6 +384,50 @@ export default function Configuracoes() {
               />
             </View>
           </View>
+        </View>
+        {/* segurança */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🔐 Segurança</Text>
+
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={authAtiva ? handleDesativarPIN : handleConfigurarPIN}
+            activeOpacity={0.7}
+          >
+            <View style={styles.actionIcon}>
+              <Text style={styles.actionIconText}>🔒</Text>
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={styles.actionTitle}>
+                {authAtiva ? 'Desativar PIN' : 'Configurar PIN'}
+              </Text>
+              <Text style={styles.actionDescription}>
+                {authAtiva
+                  ? 'Remover proteção por PIN'
+                  : 'Proteja seus dados com um PIN de 4 dígitos'}
+              </Text>
+            </View>
+            <Text style={styles.actionArrow}>›</Text>
+          </TouchableOpacity>
+
+          {authAtiva && (
+            <TouchableOpacity
+              style={styles.actionCard}
+              onPress={handleConfigurarPIN}
+              activeOpacity={0.7}
+            >
+              <View style={styles.actionIcon}>
+                <Text style={styles.actionIconText}>🔑</Text>
+              </View>
+              <View style={styles.actionContent}>
+                <Text style={styles.actionTitle}>Alterar PIN</Text>
+                <Text style={styles.actionDescription}>
+                  Trocar o PIN de acesso
+                </Text>
+              </View>
+              <Text style={styles.actionArrow}>›</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Limpeza de Dados */}
