@@ -151,7 +151,6 @@ export default function Index() {
         )}
 
         {/* Cards de Estatísticas Principais */}
-        {/* Cards de Estatísticas Principais */}
         <View style={styles.statsContainer}>
           <View style={[styles.statCard, styles.statCardLarge]}>
             <Text style={styles.statLabel}>Total a Receber</Text>
@@ -394,6 +393,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 16,
     paddingTop: 16,
+    gap: 12,
   },
   statCard: {
     flex: 1,
