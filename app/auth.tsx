@@ -1,7 +1,8 @@
-// app/auth.tsx
+// app/auth.tsx - CORRIGIDO
 import { useEffect, useState } from 'react';
 import {
     Alert,
+    BackHandler,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -13,15 +14,23 @@ import * as authService from '../services/auth';
 
 
 export default function AuthScreen() {
-    // const router = useRouter();
     const { login } = useAuth();
     const [pin, setPin] = useState('');
     const [temBiometria, setTemBiometria] = useState(false);
-    const [tentativas, setTentativas] = useState(0); 
+    const [tentativas, setTentativas] = useState(0);
+    const [biometriaFalhou, setBiometriaFalhou] = useState(false);
 
     useEffect(() => {
         verificarBiometria();
         tentarBiometriaAutomaticamente();
+
+        // Bloquear botão voltar do Android
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            () => true // Retorna true para bloquear o comportamento padrão
+        );
+
+        return () => backHandler.remove();
     }, []);
 
     const verificarBiometria = async () => {
@@ -34,6 +43,8 @@ export default function AuthScreen() {
             const sucesso = await authService.autenticarComBiometria();
             if (sucesso) {
                 login();
+            } else {
+                setBiometriaFalhou(true);
             }
         }
     };
@@ -42,6 +53,8 @@ export default function AuthScreen() {
         const sucesso = await authService.autenticarComBiometria();
         if (sucesso) {
             login();
+        } else {
+            setBiometriaFalhou(true);
         }
     };
 
@@ -157,6 +170,14 @@ export default function AuthScreen() {
                     </TouchableOpacity>
                 </View>
             </View>
+
+            {biometriaFalhou && temBiometria && (
+                <View style={styles.dica}>
+                    <Text style={styles.dicaText}>
+                        💡 Use o botão da biometria para tentar novamente
+                    </Text>
+                </View>
+            )}
         </View>
     );
 }
@@ -225,5 +246,20 @@ const styles = StyleSheet.create({
         fontSize: 32,
         fontWeight: '600',
         color: '#fff',
+    },
+    dica: {
+        position: 'absolute',
+        bottom: 40,
+        left: 20,
+        right: 20,
+        backgroundColor: 'rgba(255,255,255,0.9)',
+        padding: 16,
+        borderRadius: 12,
+    },
+    dicaText: {
+        fontSize: 14,
+        color: '#007AFF',
+        textAlign: 'center',
+        fontWeight: '600',
     },
 });

@@ -1,14 +1,15 @@
-// services/auth.ts
-import * as LocalAuthentication from 'expo-local-authentication';
-import * as SecureStore from 'expo-secure-store';
+// services/auth.ts - ATUALIZADO
+import * as LocalAuthentication from "expo-local-authentication";
+import * as SecureStore from "expo-secure-store";
 
-const PIN_KEY = 'caderneta_pin';
-const AUTH_ENABLED_KEY = 'caderneta_auth_enabled';
+const PIN_KEY = "caderneta_pin";
+const AUTH_ENABLED_KEY = "caderneta_auth_enabled";
+const ONBOARDING_KEY = "caderneta_onboarding_completed";
 
 export const verificarSuporteBiometria = async (): Promise<boolean> => {
   const compatible = await LocalAuthentication.hasHardwareAsync();
   if (!compatible) return false;
-  
+
   const enrolled = await LocalAuthentication.isEnrolledAsync();
   return enrolled;
 };
@@ -16,14 +17,15 @@ export const verificarSuporteBiometria = async (): Promise<boolean> => {
 export const autenticarComBiometria = async (): Promise<boolean> => {
   try {
     const result = await LocalAuthentication.authenticateAsync({
-      promptMessage: 'Autentique-se para acessar',
-      fallbackLabel: 'Usar PIN',
-      cancelLabel: 'Cancelar',
+      promptMessage: "Autentique-se para acessar",
+      fallbackLabel: "Usar PIN",
+      cancelLabel: "Cancelar",
+      disableDeviceFallback: false,
     });
-    
+
     return result.success;
   } catch (error) {
-    console.error('Erro na autenticação biométrica:', error);
+    console.error("Erro na autenticação biométrica:", error);
     return false;
   }
 };
@@ -31,9 +33,9 @@ export const autenticarComBiometria = async (): Promise<boolean> => {
 export const salvarPIN = async (pin: string): Promise<void> => {
   try {
     await SecureStore.setItemAsync(PIN_KEY, pin);
-    await SecureStore.setItemAsync(AUTH_ENABLED_KEY, 'true');
+    await SecureStore.setItemAsync(AUTH_ENABLED_KEY, "true");
   } catch (error) {
-    console.error('Erro ao salvar PIN:', error);
+    console.error("Erro ao salvar PIN:", error);
     throw error;
   }
 };
@@ -43,7 +45,7 @@ export const verificarPIN = async (pin: string): Promise<boolean> => {
     const storedPin = await SecureStore.getItemAsync(PIN_KEY);
     return storedPin === pin;
   } catch (error) {
-    console.error('Erro ao verificar PIN:', error);
+    console.error("Erro ao verificar PIN:", error);
     return false;
   }
 };
@@ -51,7 +53,7 @@ export const verificarPIN = async (pin: string): Promise<boolean> => {
 export const autenticacaoEstaAtiva = async (): Promise<boolean> => {
   try {
     const enabled = await SecureStore.getItemAsync(AUTH_ENABLED_KEY);
-    return enabled === 'true';
+    return enabled === "true";
   } catch (error) {
     return false;
   }
@@ -62,20 +64,52 @@ export const desativarAutenticacao = async (): Promise<void> => {
     await SecureStore.deleteItemAsync(PIN_KEY);
     await SecureStore.deleteItemAsync(AUTH_ENABLED_KEY);
   } catch (error) {
-    console.error('Erro ao desativar autenticação:', error);
+    console.error("Erro ao desativar autenticação:", error);
     throw error;
   }
 };
 
-export const alterarPIN = async (pinAtual: string, novoPIN: string): Promise<boolean> => {
+export const alterarPIN = async (
+  pinAtual: string,
+  novoPIN: string
+): Promise<boolean> => {
   try {
     const pinCorreto = await verificarPIN(pinAtual);
     if (!pinCorreto) return false;
-    
+
     await salvarPIN(novoPIN);
     return true;
   } catch (error) {
-    console.error('Erro ao alterar PIN:', error);
+    console.error("Erro ao alterar PIN:", error);
     return false;
+  }
+};
+
+// NOVO: Funções para onboarding
+export const marcarOnboardingCompleto = async (): Promise<void> => {
+  try {
+    await SecureStore.setItemAsync(ONBOARDING_KEY, "true");
+  } catch (error) {
+    console.error("Erro ao marcar onboarding:", error);
+    throw error;
+  }
+};
+
+export const verificarOnboardingCompleto = async (): Promise<boolean> => {
+  try {
+    const completed = await SecureStore.getItemAsync(ONBOARDING_KEY);
+    return completed === "true";
+  } catch (error) {
+    return false;
+  }
+};
+
+// NOVO: Limpar onboarding (útil para testes)
+export const resetarOnboarding = async (): Promise<void> => {
+  try {
+    await SecureStore.deleteItemAsync(ONBOARDING_KEY);
+  } catch (error) {
+    console.error("Erro ao resetar onboarding:", error);
+    throw error;
   }
 };
