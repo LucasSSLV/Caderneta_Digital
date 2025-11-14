@@ -1,15 +1,15 @@
 // app/configuracoes/configurar-pin.tsx
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  Alert,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
+import { useAuth } from '../../contexts/AuthContext';
 import * as authService from '../../services/auth';
-import { useAuth } from '../contexts/AuthContext';
 
 export default function ConfigurarPIN() {
     const router = useRouter();
@@ -18,14 +18,15 @@ export default function ConfigurarPIN() {
     const [pinCriado, setPinCriado] = useState('');
     const [pin, setPin] = useState('');
 
+    useEffect(() => {
+        if (pin.length === 4) {
+            processarPin(pin);
+        }
+    }, [pin]);
+
     const adicionarDigito = (digito: string) => {
         if (pin.length < 4) {
-            const novoPin = pin + digito;
-            setPin(novoPin);
-
-            if (novoPin.length === 4) {
-                processarPin(novoPin);
-            }
+            setPin(pin + digito);
         }
     };
 

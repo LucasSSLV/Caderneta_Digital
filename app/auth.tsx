@@ -1,5 +1,4 @@
 // app/auth.tsx
-import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
     Alert,
@@ -9,16 +8,16 @@ import {
     Vibration,
     View,
 } from 'react-native';
+import { useAuth } from '../contexts/AuthContext';
 import * as authService from '../services/auth';
-import { useAuth } from './contexts/AuthContext';
 
 
 export default function AuthScreen() {
-    const router = useRouter();
+    // const router = useRouter();
     const { login } = useAuth();
     const [pin, setPin] = useState('');
     const [temBiometria, setTemBiometria] = useState(false);
-    const [tentativas, setTentativas] = useState(0);
+    const [tentativas, setTentativas] = useState(0); 
 
     useEffect(() => {
         verificarBiometria();
