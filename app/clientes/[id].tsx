@@ -5,6 +5,7 @@ import { ActivityIndicator, Alert, FlatList, Platform, StyleSheet, Text, Touchab
 import CompraItem from '../../components/CompraItem';
 import TotalDevido from '../../components/TotalDevido';
 import * as storage from '../../services/storage';
+import * as whatsappService from '../../services/whataspp';
 import { Cliente, Compra } from '../../types';
 
 export default function ClienteDetalhes() {
@@ -14,6 +15,33 @@ export default function ClienteDetalhes() {
     const [cliente, setCliente] = useState<Cliente | null>(null);
     const [compras, setCompras] = useState<Compra[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const handleCompartilharExtrato = () => {
+        if (!cliente) return;
+
+        const resumo = calcularResumo();
+        whatsappService.compartilharExtratoCliente(
+            cliente,
+            compras,
+            resumo.total
+        );
+    };
+
+    const handleEnviarCobranca = () => {
+        if (!cliente) return;
+
+        const resumo = calcularResumo();
+
+        if (resumo.total === 0) {
+            Alert.alert(
+                'Sem pendências',
+                'Este cliente não possui valores pendentes.'
+            );
+            return;
+        }
+
+        whatsappService.compartilharCobranca(cliente, resumo.total);
+    };
 
     const carregarDados = async () => {
         try {
@@ -163,9 +191,32 @@ export default function ClienteDetalhes() {
                 >
                     <Text style={{ color: '#007AFF', marginTop: 8 }}>✍️​Editar Cliente</Text>
                 </TouchableOpacity>
+
+                {resumo.total > 0 && (
+                    <View style={styles.acoesWhatsApp}>
+                        <TouchableOpacity
+                            style={styles.btnWhatsApp}
+                            onPress={handleEnviarCobranca}
+                            activeOpacity={0.8}
+                        >
+                            <Text style={styles.btnWhatsAppIcon}>💬</Text>
+                            <Text style={styles.btnWhatsAppText}>Enviar Cobrança</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.btnWhatsApp, styles.btnWhatsAppSecundario]}
+                            onPress={handleCompartilharExtrato}
+                            activeOpacity={0.8}
+                        >
+                            <Text style={styles.btnWhatsAppIcon}>📋</Text>
+                            <Text style={styles.btnWhatsAppText}>Compartilhar Extrato</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
             </View>
 
             <FlatList
+
                 data={compras}
                 keyExtractor={item => item.id}
                 ListHeaderComponent={
@@ -174,7 +225,9 @@ export default function ClienteDetalhes() {
                         quantidadeCompras={resumo.quantidadeCompras}
                         quantidadePagas={resumo.quantidadePagas}
                     />
+
                 }
+
                 renderItem={({ item }) => (
                     <CompraItem
                         compra={item}
@@ -209,6 +262,38 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f5f5f5',
+    },
+    acoesWhatsApp: {
+        flexDirection: 'row',
+        paddingHorizontal: 16,
+        gap: 12,
+        marginBottom: 16,
+    },
+    btnWhatsApp: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#25D366',
+        borderRadius: 8,
+        padding: 12,
+        gap: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    btnWhatsAppSecundario: {
+        backgroundColor: '#128C7E',
+    },
+    btnWhatsAppIcon: {
+        fontSize: 20,
+    },
+    btnWhatsAppText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '600',
     },
     loadingContainer: {
         flex: 1,

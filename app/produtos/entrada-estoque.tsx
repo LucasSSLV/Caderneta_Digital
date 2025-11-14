@@ -265,6 +265,7 @@ export default function EntradaEstoque() {
                                 onChangeText={setQuantidade}
                                 keyboardType="number-pad"
                                 placeholder="0"
+                                placeholderTextColor="#999"
                                 autoFocus
                             />
                         </View>
