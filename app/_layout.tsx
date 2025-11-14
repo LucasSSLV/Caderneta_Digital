@@ -1,11 +1,11 @@
-// app/_layout.tsx - CORRIGIDO
+// app/_layout.tsx - ATUALIZADO COM ONBOARDING
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 
 function RootLayoutNav() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, needsOnboarding } = useAuth();
   const router = useRouter();
   const segments = useSegments();
 
@@ -13,15 +13,26 @@ function RootLayoutNav() {
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === 'auth';
+    const inOnboardingGroup = segments[0] === 'onboarding';
 
-    if (!isAuthenticated && !inAuthGroup) {
-      // Redirecionar para tela de autenticação
-      router.replace('/auth');
-    } else if (isAuthenticated && inAuthGroup) {
-      // Redirecionar para home
-      router.replace('/');
+    // Prioridade 1: Onboarding
+    if (needsOnboarding && !inOnboardingGroup) {
+      router.replace('/onboarding');
+      return;
     }
-  }, [isAuthenticated, segments, isLoading]);
+
+    // Prioridade 2: Autenticação
+    if (!needsOnboarding && !isAuthenticated && !inAuthGroup) {
+      router.replace('/auth');
+      return;
+    }
+
+    // Prioridade 3: Home (já está autenticado e onboarding completo)
+    if (!needsOnboarding && isAuthenticated && (inAuthGroup || inOnboardingGroup)) {
+      router.replace('/');
+      return;
+    }
+  }, [isAuthenticated, segments, isLoading, needsOnboarding]);
 
   if (isLoading) {
     return (
@@ -38,6 +49,7 @@ function RootLayoutNav() {
         contentStyle: { backgroundColor: '#f5f5f5' },
       }}
     >
+      <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       <Stack.Screen name="auth" options={{ headerShown: false }} />
       <Stack.Screen name="index" options={{ title: 'Dashboard' }} />
       <Stack.Screen name="clientes/lista" options={{ title: 'Clientes' }} />

@@ -1,4 +1,4 @@
-// app/configuracoes/index.tsx
+// app/configuracoes/index.tsx - COM OPÇÃO DE RESETAR ONBOARDING
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -69,6 +69,39 @@ export default function Configuracoes() {
     );
   };
 
+  const handleResetarOnboarding = async () => {
+    Alert.alert(
+      'Resetar Tutorial',
+      'Deseja ver novamente o tutorial de boas-vindas?\n\nVocê será desconectado e voltará à tela inicial.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Resetar',
+          onPress: async () => {
+            try {
+              await authService.resetarOnboarding();
+              Alert.alert(
+                'Tutorial Resetado',
+                'Reinicie o app para ver o tutorial novamente.',
+                [
+                  {
+                    text: 'OK',
+                    onPress: () => {
+                      // Força o app a recarregar
+                      router.replace('/onboarding');
+                    }
+                  }
+                ]
+              );
+            } catch (error) {
+              Alert.alert('Erro', 'Não foi possível resetar o tutorial.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const carregarDados = async () => {
     try {
       setLoading(true);
@@ -86,14 +119,13 @@ export default function Configuracoes() {
         movimentacoes: movimentacoes.length,
       });
 
-      // Calcular tamanho aproximado
       const tamanho =
         JSON.stringify(clientes).length +
         JSON.stringify(compras).length +
         JSON.stringify(produtos).length +
         JSON.stringify(movimentacoes).length;
 
-      setTamanhoArmazenamento(tamanho / 1024); // KB
+      setTamanhoArmazenamento(tamanho / 1024);
     } catch (error) {
       console.error(error);
     } finally {
@@ -179,13 +211,11 @@ export default function Configuracoes() {
               const comprasPagas = compras.filter((c) => c.pago);
               const comprasAtivas = compras.filter((c) => !c.pago);
 
-              // Salvar compras pagas em arquivo separado
               await AsyncStorage.setItem(
                 "@caderneta:compras_arquivadas",
                 JSON.stringify(comprasPagas)
               );
 
-              // Manter só as ativas
               await storage.salvarCompras(comprasAtivas);
               await carregarDados();
 
@@ -385,7 +415,8 @@ export default function Configuracoes() {
             </View>
           </View>
         </View>
-        {/* segurança */}
+
+        {/* Segurança */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>🔐 Segurança</Text>
 
@@ -428,6 +459,23 @@ export default function Configuracoes() {
               <Text style={styles.actionArrow}>›</Text>
             </TouchableOpacity>
           )}
+
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={handleResetarOnboarding}
+            activeOpacity={0.7}
+          >
+            <View style={styles.actionIcon}>
+              <Text style={styles.actionIconText}>🎓</Text>
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={styles.actionTitle}>Ver Tutorial Novamente</Text>
+              <Text style={styles.actionDescription}>
+                Resetar e ver a tela de boas-vindas
+              </Text>
+            </View>
+            <Text style={styles.actionArrow}>›</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Limpeza de Dados */}
