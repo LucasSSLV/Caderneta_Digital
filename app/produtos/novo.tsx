@@ -13,6 +13,7 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
+import { useTheme } from "../../contexts/ThemeContext";
 import * as storage from '../../services/storage';
 import { Produto } from '../../types';
 
@@ -26,6 +27,9 @@ export default function NovoProduto() {
     const [unidadesPorCaixa, setUnidadesPorCaixa] = useState('');
     const [estoque, setEstoque] = useState('');
     const [salvando, setSalvando] = useState(false);
+    const { colors, isDark } = useTheme();
+    const styles = createStyles(colors, isDark);
+
 
     const formatarMoeda = (text: string) => {
         const cleaned = text.replace(/\D/g, '');
@@ -165,6 +169,7 @@ export default function NovoProduto() {
                                 <TextInput
                                     style={styles.inputValor}
                                     placeholder="0,00"
+                                    placeholderTextColor={colors.warning}
                                     value={precoUnidade}
                                     onChangeText={handlePrecoUnidadeChange}
                                     keyboardType="numeric"
@@ -180,6 +185,7 @@ export default function NovoProduto() {
                                 <TextInput
                                     style={styles.inputValor}
                                     placeholder="0,00"
+                                    placeholderTextColor={colors.warning}
                                     value={precoCaixa}
                                     onChangeText={handlePrecoCaixaChange}
                                     keyboardType="numeric"
@@ -195,7 +201,7 @@ export default function NovoProduto() {
                             <TextInput
                                 style={styles.input}
                                 placeholder="Ex: 5"
-                                placeholderTextColor={'#999'}
+                                placeholderTextColor={colors.textSecondary}
                                 value={pesoUnidade}
                                 onChangeText={setPesoUnidade}
                                 keyboardType="decimal-pad"
@@ -208,7 +214,7 @@ export default function NovoProduto() {
                             <TextInput
                                 style={styles.input}
                                 placeholder="Ex: 12"
-                                placeholderTextColor={'#999'}
+                                placeholderTextColor={colors.textSecondary}
                                 value={unidadesPorCaixa}
                                 onChangeText={setUnidadesPorCaixa}
                                 keyboardType="number-pad"
@@ -222,7 +228,7 @@ export default function NovoProduto() {
                         <TextInput
                             style={styles.input}
                             placeholder="Quantidade em estoque ex: 50"
-                            placeholderTextColor={'#999'}
+                            placeholderTextColor={colors.danger}
                             value={estoque}
                             onChangeText={setEstoque}
                             keyboardType="number-pad"
@@ -257,120 +263,123 @@ export default function NovoProduto() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f5f5f5',
-    },
-    header: {
-        backgroundColor: '#fff',
-        paddingTop: 60,
-        paddingBottom: 20,
-        paddingHorizontal: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
-    },
-    btnVoltar: {
-        marginBottom: 12,
-    },
-    btnVoltarText: {
-        fontSize: 16,
-        color: '#007AFF',
-        fontWeight: '500',
-    },
-    titulo: {
-        fontSize: 28,
-        fontWeight: '700',
-        color: '#1a1a1a',
-    },
-    content: {
-        flex: 1,
-    },
-    form: {
-        padding: 20,
-    },
-    inputGroup: {
-        marginBottom: 20,
-    },
-    row: {
-        flexDirection: 'row',
-        gap: 12,
-    },
-    halfWidth: {
-        flex: 1,
-    },
-    label: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: '#1a1a1a',
-        marginBottom: 8,
-    },
-    input: {
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        padding: 14,
-        fontSize: 16,
-        borderWidth: 1,
-        borderColor: '#e0e0e0',
-        fontWeight: '700',
-    },
-    valorContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#e0e0e0',
-        paddingHorizontal: 12,
-    },
-    cifrao: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#0d9a43ff',
-        marginRight: 6,
-    },
-    inputValor: {
-        flex: 1,
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#e90b0bff',
-        padding: 14,
-    },
-    infoBox: {
-        flexDirection: 'row',
-        backgroundColor: '#E3F2FD',
-        borderRadius: 8,
-        padding: 16,
-        marginTop: 8,
-    },
-    infoIcon: {
-        fontSize: 20,
-        marginRight: 12,
-    },
-    infoText: {
-        flex: 1,
-        fontSize: 14,
-        color: '#1565C0',
-        lineHeight: 20,
-    },
-    footer: {
-        backgroundColor: '#fff',
-        padding: 20,
-        borderTopWidth: 1,
-        borderTopColor: '#e0e0e0',
-    },
-    btnSalvar: {
-        backgroundColor: '#007AFF',
-        borderRadius: 8,
-        padding: 16,
-        alignItems: 'center',
-    },
-    btnSalvarDisabled: {
-        opacity: 0.6,
-    },
-    btnSalvarText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: '600',
-    },
-});
+function createStyles(colors: any, isDark: boolean) {
+    return StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: colors.background,
+        },
+        header: {
+            backgroundColor: colors.card,
+            paddingTop: 60,
+            paddingBottom: 20,
+            paddingHorizontal: 20,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+        },
+        btnVoltar: {
+            marginBottom: 12,
+        },
+        btnVoltarText: {
+            fontSize: 16,
+            color: colors.primary,
+            fontWeight: '500',
+        },
+        titulo: {
+            fontSize: 28,
+            fontWeight: '700',
+            color: colors.text,
+        },
+        content: {
+            flex: 1,
+        },
+        form: {
+            padding: 20,
+        },
+        inputGroup: {
+            marginBottom: 20,
+        },
+        row: {
+            flexDirection: 'row',
+            gap: 12,
+        },
+        halfWidth: {
+            flex: 1,
+        },
+        label: {
+            fontSize: 15,
+            fontWeight: '600',
+            color: colors.text,
+            marginBottom: 8,
+        },
+        input: {
+            backgroundColor: colors.inputBackground,
+            borderRadius: 8,
+            padding: 14,
+            fontSize: 16,
+            borderWidth: 1,
+            borderColor: colors.border,
+            fontWeight: '700',
+            color: colors.warning,
+        },
+        valorContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: colors.inputBackground,
+            borderRadius: 8,
+            borderWidth: 1,
+            borderColor: colors.border,
+            paddingHorizontal: 12,
+        },
+        cifrao: {
+            fontSize: 16,
+            fontWeight: '600',
+            color: colors.success,
+            marginRight: 6,
+        },
+        inputValor: {
+            flex: 1,
+            fontSize: 18,
+            fontWeight: '600',
+            color: colors.danger,
+            padding: 14,
+        },
+        infoBox: {
+            flexDirection: 'row',
+            backgroundColor: colors.cardInfo,
+            borderRadius: 8,
+            padding: 16,
+            marginTop: 8,
+        },
+        infoIcon: {
+            fontSize: 20,
+            marginRight: 12,
+        },
+        infoText: {
+            flex: 1,
+            fontSize: 14,
+            color: colors.info,
+            lineHeight: 20,
+        },
+        footer: {
+            backgroundColor: colors.card,
+            padding: 20,
+            borderTopWidth: 1,
+            borderTopColor: colors.border,
+        },
+        btnSalvar: {
+            backgroundColor: colors.primary,
+            borderRadius: 8,
+            padding: 16,
+            alignItems: 'center',
+        },
+        btnSalvarDisabled: {
+            opacity: 0.6,
+        },
+        btnSalvarText: {
+            color: '#fff',
+            fontSize: 18,
+            fontWeight: '600',
+        },
+    });
+}

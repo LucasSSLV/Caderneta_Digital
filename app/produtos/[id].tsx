@@ -305,7 +305,7 @@ export default function EditarProduto() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#d51313ff',
         marginBottom: 60,
     },
     loadingContainer: {
