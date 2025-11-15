@@ -1,4 +1,5 @@
 // app/produtos/lista.tsx - COM CONTROLE DE ESTOQUE
+import { useTheme } from '@/contexts/ThemeContext';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -10,7 +11,8 @@ export default function ListaProdutos() {
     const [produtos, setProdutos] = useState<Produto[]>([]);
     const [produtosEstoqueBaixo, setProdutosEstoqueBaixo] = useState<number>(0);
     const [loading, setLoading] = useState(true);
-    // const [salvando, setSalvando] = useState(false);
+    const { colors, isDark } = useTheme();
+    const styles = createStyles(colors, isDark);
 
     const carregarDados = async () => {
         try {
@@ -294,261 +296,263 @@ export default function ListaProdutos() {
     );
 }
 
-const styles = StyleSheet.create({
-    btnHistorico: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#4CAF50',
-        borderRadius: 12,
-        padding: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-        marginTop: 12,
-    },
-    btnHistoricoIcon: {
-        fontSize: 24,
-        marginRight: 12,
-    },
-    btnHistoricoText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#fff',
-    },
-    btnExcluir: {
-        marginTop: 12,
-        padding: 8,
-        borderRadius: 4,
-    },
-    btnExcluirText: {
-        color: '#e74c3c',
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    container: {
-        flex: 1,
-        backgroundColor: '#f5f5f5',
-        marginBottom: 60,
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f5f5f5',
-    },
-    loadingText: {
-        marginTop: 12,
-        fontSize: 16,
-        color: '#666',
-    },
-    header: {
-        backgroundColor: '#fff',
-        paddingTop: 60,
-        paddingBottom: 20,
-        paddingHorizontal: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
-    },
-    btnVoltar: {
-        marginBottom: 12,
-    },
-    btnVoltarText: {
-        fontSize: 16,
-        color: '#007AFF',
-        fontWeight: '500',
-    },
-    titulo: {
-        fontSize: 28,
-        fontWeight: '700',
-        color: '#1a1a1a',
-        marginBottom: 4,
-    },
-    subtitulo: {
-        fontSize: 14,
-        color: '#666',
-    },
-    alertaEstoque: {
-        backgroundColor: '#FFF3E0',
-        borderRadius: 8,
-        padding: 12,
-        marginTop: 12,
-        borderLeftWidth: 4,
-        borderLeftColor: '#f39c12',
-    },
-    alertaEstoqueText: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: '#f39c12',
-    },
-    acoes: {
-        padding: 16,
-    },
-    btnEntrada: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#007AFF',
-        borderRadius: 12,
-        padding: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    btnEntradaIcon: {
-        fontSize: 24,
-        marginRight: 12,
-    },
-    btnEntradaText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#fff',
-    },
-    lista: {
-        paddingVertical: 8,
-    },
-    produtoCard: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 16,
-        marginHorizontal: 16,
-        marginVertical: 6,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    cardHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 12,
-    },
-    nomeProduto: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#1a1a1a',
-        flex: 1,
-    },
-    categoriaTag: {
-        backgroundColor: '#E3F2FD',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 6,
-    },
-    categoriaText: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: '#1565C0',
-    },
-    cardBody: {
-        flexDirection: 'row',
-        gap: 16,
-        marginBottom: 12,
-    },
-    precoContainer: {
-        flex: 1,
-    },
-    precoLabel: {
-        fontSize: 12,
-        color: '#666',
-        marginBottom: 4,
-    },
-    precoValor: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: '#27ae60',
-    },
-    cardFooter: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 12,
-        paddingTop: 12,
-        borderTopWidth: 1,
-        borderTopColor: '#f0f0f0',
-        alignItems: 'center',
-    },
-    infoText: {
-        fontSize: 13,
-        color: '#666',
-    },
-    estoqueContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    badgeZerado: {
-        backgroundColor: '#FFEBEE',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 6,
-    },
-    badgeBaixo: {
-        backgroundColor: '#FFF3E0',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 6,
-    },
-    badgeText: {
-        fontSize: 11,
-        fontWeight: '600',
-        color: '#666',
-    },
-    estoqueValor: {
-        fontSize: 13,
-        fontWeight: '600',
-    },
-    estoqueZerado: {
-        color: '#e74c3c',
-    },
-    estoqueBaixo: {
-        color: '#f39c12',
-    },
-    empty: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 80,
-        paddingHorizontal: 40,
-    },
-    emptyText: {
-        fontSize: 64,
-        marginBottom: 16,
-    },
-    emptyTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#1a1a1a',
-        marginBottom: 8,
-        textAlign: 'center',
-    },
-    emptySubtitle: {
-        fontSize: 14,
-        color: '#666',
-        textAlign: 'center',
-        lineHeight: 20,
-    },
-    fab: {
-        position: 'absolute',
-        right: 20,
-        bottom: 20,
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        backgroundColor: '#007AFF',
-        alignItems: 'center',
-        justifyContent: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 8,
-    },
-    fabText: {
-        fontSize: 32,
-        color: '#fff',
-        fontWeight: '300',
-    },
-});
+function createStyles(colors: any, isDark: boolean) {
+    return StyleSheet.create({
+        btnHistorico: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: colors.primary,
+            borderRadius: 12,
+            padding: 16,
+            shadowColor: colors.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+            marginTop: 12,
+        },
+        btnHistoricoIcon: {
+            fontSize: 24,
+            marginRight: 12,
+        },
+        btnHistoricoText: {
+            fontSize: 16,
+            fontWeight: '600',
+            color: colors.card,
+        },
+        btnExcluir: {
+            marginTop: 12,
+            padding: 8,
+            borderRadius: 4,
+        },
+        btnExcluirText: {
+            color: colors.danger,
+            fontSize: 14,
+            fontWeight: '600',
+        },
+        container: {
+            flex: 1,
+            backgroundColor: colors.background,
+            marginBottom: 60,
+        },
+        loadingContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: colors.background,
+        },
+        loadingText: {
+            marginTop: 12,
+            fontSize: 16,
+            color: colors.loadingText,
+        },
+        header: {
+            backgroundColor: colors.background,
+            paddingTop: 60,
+            paddingBottom: 20,
+            paddingHorizontal: 20,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.divider,
+        },
+        btnVoltar: {
+            marginBottom: 12,
+        },
+        btnVoltarText: {
+            fontSize: 16,
+            color: '#007AFF',
+            fontWeight: '500',
+        },
+        titulo: {
+            fontSize: 28,
+            fontWeight: '700',
+            color: colors.text,
+            marginBottom: 4,
+        },
+        subtitulo: {
+            fontSize: 14,
+            color: colors.textSecondary,
+        },
+        alertaEstoque: {
+            backgroundColor: colors.cardWarning,
+            borderRadius: 8,
+            padding: 12,
+            marginTop: 12,
+            borderLeftWidth: 4,
+            borderLeftColor: colors.warning,
+        },
+        alertaEstoqueText: {
+            fontSize: 13,
+            fontWeight: '600',
+            color: colors.warning,
+        },
+        acoes: {
+            padding: 16,
+        },
+        btnEntrada: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: colors.success,
+            borderRadius: 12,
+            padding: 16,
+            shadowColor: colors.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+        },
+        btnEntradaIcon: {
+            fontSize: 24,
+            marginRight: 12,
+        },
+        btnEntradaText: {
+            fontSize: 16,
+            fontWeight: '600',
+            color: colors.card,
+        },
+        lista: {
+            paddingVertical: 8,
+        },
+        produtoCard: {
+            backgroundColor: colors.card,
+            borderRadius: 12,
+            padding: 16,
+            marginHorizontal: 16,
+            marginVertical: 6,
+            shadowColor: colors.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+        },
+        cardHeader: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 12,
+        },
+        nomeProduto: {
+            fontSize: 18,
+            fontWeight: '600',
+            color: colors.text,
+            flex: 1,
+        },
+        categoriaTag: {
+            backgroundColor: colors.info,
+            paddingHorizontal: 10,
+            paddingVertical: 4,
+            borderRadius: 6,
+        },
+        categoriaText: {
+            fontSize: 12,
+            fontWeight: '600',
+            color: colors.card,
+        },
+        cardBody: {
+            flexDirection: 'row',
+            gap: 16,
+            marginBottom: 12,
+        },
+        precoContainer: {
+            flex: 1,
+        },
+        precoLabel: {
+            fontSize: 12,
+            color: colors.textSecondary,
+            marginBottom: 4,
+        },
+        precoValor: {
+            fontSize: 18,
+            fontWeight: '700',
+            color: colors.success,
+        },
+        cardFooter: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: 12,
+            paddingTop: 12,
+            borderTopWidth: 1,
+            borderTopColor: colors.divider,
+            alignItems: 'center',
+        },
+        infoText: {
+            fontSize: 13,
+            color: colors.textSecondary,
+        },
+        estoqueContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+        },
+        badgeZerado: {
+            backgroundColor: colors.cardPurple,
+            paddingHorizontal: 10,
+            paddingVertical: 4,
+            borderRadius: 6,
+        },
+        badgeBaixo: {
+            backgroundColor: colors.warning,
+            paddingHorizontal: 10,
+            paddingVertical: 4,
+            borderRadius: 6,
+        },
+        badgeText: {
+            fontSize: 11,
+            fontWeight: '600',
+            color: colors.warning,
+        },
+        estoqueValor: {
+            fontSize: 13,
+            fontWeight: '600',
+        },
+        estoqueZerado: {
+            color: colors.danger,
+        },
+        estoqueBaixo: {
+            color: colors.warning,
+        },
+        empty: {
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 80,
+            paddingHorizontal: 40,
+        },
+        emptyText: {
+            fontSize: 64,
+            marginBottom: 16,
+        },
+        emptyTitle: {
+            fontSize: 18,
+            fontWeight: '600',
+            color: colors.emptyTitle,
+            marginBottom: 8,
+            textAlign: 'center',
+        },
+        emptySubtitle: {
+            fontSize: 14,
+            color: colors.textSecondary,
+            textAlign: 'center',
+            lineHeight: 20,
+        },
+        fab: {
+            position: 'absolute',
+            right: 20,
+            bottom: 20,
+            width: 60,
+            height: 60,
+            borderRadius: 30,
+            backgroundColor: '#007AFF',
+            alignItems: 'center',
+            justifyContent: 'center',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 4,
+            elevation: 8,
+        },
+        fabText: {
+            fontSize: 32,
+            color: '#fff',
+            fontWeight: '300',
+        },
+    });
+}

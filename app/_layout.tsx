@@ -1,11 +1,13 @@
-// app/_layout.tsx - ATUALIZADO COM ONBOARDING
+// app/_layout.tsx - COM THEME PROVIDER
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
+import { ThemeProvider, useTheme } from '../contexts/ThemeContext';
 
 function RootLayoutNav() {
   const { isAuthenticated, isLoading, needsOnboarding } = useAuth();
+  const { colors } = useTheme();
   const router = useRouter();
   const segments = useSegments();
 
@@ -15,19 +17,16 @@ function RootLayoutNav() {
     const inAuthGroup = segments[0] === 'auth';
     const inOnboardingGroup = segments[0] === 'onboarding';
 
-    // Prioridade 1: Onboarding
     if (needsOnboarding && !inOnboardingGroup) {
       router.replace('/onboarding');
       return;
     }
 
-    // Prioridade 2: Autenticação
     if (!needsOnboarding && !isAuthenticated && !inAuthGroup) {
       router.replace('/auth');
       return;
     }
 
-    // Prioridade 3: Home (já está autenticado e onboarding completo)
     if (!needsOnboarding && isAuthenticated && (inAuthGroup || inOnboardingGroup)) {
       router.replace('/');
       return;
@@ -36,8 +35,13 @@ function RootLayoutNav() {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5' }}>
-        <ActivityIndicator size="large" color="#007AFF" />
+      <View style={{ 
+        flex: 1, 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        backgroundColor: colors.background 
+      }}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -46,7 +50,7 @@ function RootLayoutNav() {
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: '#f5f5f5' },
+        contentStyle: { backgroundColor: colors.background },
       }}
     >
       <Stack.Screen name="onboarding" options={{ headerShown: false }} />
@@ -75,8 +79,10 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <RootLayoutNav />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <RootLayoutNav />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

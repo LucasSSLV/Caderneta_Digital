@@ -1,7 +1,7 @@
 
 // components/ClienteCard.tsx
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Cliente } from '../types';
 
 type ClienteCardProps = {
@@ -62,17 +62,17 @@ const styles = StyleSheet.create({
   },
   dividaLabel: {
     fontSize: 12,
-    color: '#999',
+    color: '#2C2C2E',
   },
   dividaValor: {
     fontSize: 16,
     fontWeight: '700',
   },
   comDivida: {
-    color: '#e53935', // Vermelho
+    color: '#e53935',
   },
   semDivida: {
-    color: '#43a047', // Verde
+    color: '#43a047',
   },
 });
 

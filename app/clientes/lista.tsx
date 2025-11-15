@@ -3,10 +3,13 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import ClienteCard from '../../components/ClienteCard';
+import { useTheme } from '../../contexts/ThemeContext';
 import * as storage from '../../services/storage';
 import { Cliente, Compra } from '../../types';
 
 export default function ListaClientes() {
+    const { colors, isDark } = useTheme();
+    const styles = createStyles(colors, isDark);
     const router = useRouter();
     const [clientes, setClientes] = useState<Cliente[]>([]);
     const [clientesFiltrados, setClientesFiltrados] = useState<Cliente[]>([]);
@@ -40,18 +43,18 @@ export default function ListaClientes() {
 
     const handleBusca = (texto: string) => {
         setBusca(texto);
-        
+
         if (!texto.trim()) {
             setClientesFiltrados(clientes);
             return;
         }
 
         const textoLower = texto.toLowerCase();
-        const filtrados = clientes.filter(cliente => 
+        const filtrados = clientes.filter(cliente =>
             cliente.nome.toLowerCase().includes(textoLower) ||
             cliente.telefone?.toLowerCase().includes(textoLower)
         );
-        
+
         setClientesFiltrados(filtrados);
     };
 
@@ -119,7 +122,7 @@ export default function ListaClientes() {
     const handleNovoCliente = () => {
         router.push('/clientes/novo');
     };
-    
+
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
@@ -186,7 +189,7 @@ export default function ListaClientes() {
                             {busca ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado'}
                         </Text>
                         <Text style={styles.emptySubtitle}>
-                            {busca 
+                            {busca
                                 ? 'Tente buscar por outro nome ou telefone'
                                 : 'Toque no botão + para adicionar seu primeiro cliente'
                             }
@@ -206,125 +209,127 @@ export default function ListaClientes() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f5f5f5',
-        marginBottom: 60,
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f5f5f5',
-    },
-    loadingText: {
-        marginTop: 12,
-        fontSize: 16,
-        color: '#666',
-    },
-    header: {
-        backgroundColor: '#fff',
-        paddingTop: 60,
-        paddingBottom: 20,
-        paddingHorizontal: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
-    },
-    btnVoltar: {
-        marginBottom: 12,
-    },
-    btnVoltarText: {
-        fontSize: 16,
-        color: '#007AFF',
-        fontWeight: '500',
-    },
-    titulo: {
-        fontSize: 28,
-        fontWeight: '700',
-        color: '#1a1a1a',
-        marginBottom: 4,
-    },
-    subtitulo: {
-        fontSize: 14,
-        color: '#666',
-    },
-    buscaContainer: {
-        backgroundColor: '#fff',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
-    },
-    buscaInputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#f5f5f5',
-        borderRadius: 10,
-        paddingHorizontal: 12,
-    },
-    buscaIcon: {
-        fontSize: 18,
-        marginRight: 8,
-    },
-    buscaInput: {
-        flex: 1,
-        paddingVertical: 12,
-        fontSize: 16,
-        color: '#1a1a1a',
-    },
-    btnLimpar: {
-        padding: 4,
-    },
-    btnLimparText: {
-        fontSize: 18,
-        color: '#999',
-    },
-    lista: {
-        paddingVertical: 8,
-    },
-    empty: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 80,
-        paddingHorizontal: 40,
-    },
-    emptyText: {
-        fontSize: 64,
-        marginBottom: 16,
-    },
-    emptyTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#1a1a1a',
-        marginBottom: 8,
-        textAlign: 'center',
-    },
-    emptySubtitle: {
-        fontSize: 14,
-        color: '#666',
-        textAlign: 'center',
-        lineHeight: 20,
-    },
-    fab: {
-        position: 'absolute',
-        right: 20,
-        bottom: 20,
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        backgroundColor: '#007AFF',
-        alignItems: 'center',
-        justifyContent: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 8,
-    },
-    fabText: {
-        fontSize: 32,
-        color: '#fff',
-        fontWeight: '300',
-    },
-});
+function createStyles(colors: any, isDark: boolean) {
+    return StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: colors.background,
+            marginBottom: 60,
+        },
+        loadingContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: colors.background,
+        },
+        loadingText: {
+            marginTop: 12,
+            fontSize: 16,
+            color: colors.loadingText,
+        },
+        header: {
+            backgroundColor: colors.background,
+            paddingTop: 60,
+            paddingBottom: 20,
+            paddingHorizontal: 20,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+        },
+        btnVoltar: {
+            marginBottom: 12,
+        },
+        btnVoltarText: {
+            fontSize: 16,
+            color: '#007AFF',
+            fontWeight: '500',
+        },
+        titulo: {
+            fontSize: 28,
+            fontWeight: '700',
+            color: colors.text,
+            marginBottom: 4,
+        },
+        subtitulo: {
+            fontSize: 14,
+            color: colors.textSecondary,
+        },
+        buscaContainer: {
+            backgroundColor: colors.background,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+        },
+        buscaInputContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: colors.background,
+            borderRadius: 10,
+            paddingHorizontal: 12,
+        },
+        buscaIcon: {
+            fontSize: 18,
+            marginRight: 8,
+        },
+        buscaInput: {
+            flex: 1,
+            paddingVertical: 12,
+            fontSize: 16,
+            color: colors.text,
+        },
+        btnLimpar: {
+            padding: 4,
+        },
+        btnLimparText: {
+            fontSize: 18,
+            color: colors.textSecondary,
+        },
+        lista: {
+            paddingVertical: 8,
+        },
+        empty: {
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 80,
+            paddingHorizontal: 40,
+        },
+        emptyText: {
+            fontSize: 64,
+            marginBottom: 16,
+        },
+        emptyTitle: {
+            fontSize: 18,
+            fontWeight: '600',
+            color: colors.text,
+            marginBottom: 8,
+            textAlign: 'center',
+        },
+        emptySubtitle: {
+            fontSize: 14,
+            color: colors.textSecondary,
+            textAlign: 'center',
+            lineHeight: 20,
+        },
+        fab: {
+            position: 'absolute',
+            right: 20,
+            bottom: 20,
+            width: 60,
+            height: 60,
+            borderRadius: 30,
+            backgroundColor: colors.background,
+            alignItems: 'center',
+            justifyContent: 'center',
+            shadowColor: colors.shadow,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 4,
+            elevation: 8,
+        },
+        fabText: {
+            fontSize: 32,
+            color: colors.background,
+            fontWeight: '300',
+        },
+    });
+}

@@ -1,4 +1,4 @@
-// app/configuracoes/index.tsx - COM OPÇÃO DE RESETAR ONBOARDING
+// app/configuracoes/index.tsx - COM SELETOR DE TEMA
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -12,11 +12,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useTheme } from "../../contexts/ThemeContext";
 import * as authService from "../../services/auth";
 import * as storage from "../../services/storage";
 
 export default function Configuracoes() {
   const router = useRouter();
+  const { colors, isDark, themeMode, setThemeMode } = useTheme();
   const [loading, setLoading] = useState(true);
   const [tamanhoArmazenamento, setTamanhoArmazenamento] = useState(0);
   const [estatisticas, setEstatisticas] = useState({
@@ -32,6 +34,8 @@ export default function Configuracoes() {
   });
   const [authAtiva, setAuthAtiva] = useState(false);
 
+  const styles = createStyles(colors, isDark);
+
   useEffect(() => {
     carregarDados();
     carregarConfiguracoes();
@@ -42,6 +46,38 @@ export default function Configuracoes() {
     verificarAuth();
   }, []);
 
+  const handleSelecionarTema = () => {
+    Alert.alert(
+      '🎨 Selecionar Tema',
+      'Escolha o tema do aplicativo:',
+      [
+        {
+          text: '☀️ Claro',
+          onPress: () => setThemeMode('light'),
+        },
+        {
+          text: '🌙 Escuro',
+          onPress: () => setThemeMode('dark'),
+        },
+        {
+          text: '🔄 Automático',
+          onPress: () => setThemeMode('auto'),
+        },
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+      ]
+    );
+  };
+
+  const getTemaAtualTexto = () => {
+    if (themeMode === 'auto') return '🔄 Automático';
+    if (themeMode === 'dark') return '🌙 Escuro';
+    return '☀️ Claro';
+  };
+
+  // ... resto das funções permanecem iguais ...
   const handleConfigurarPIN = () => {
     router.push('/configuracoes/configurar-pin');
   };
@@ -87,7 +123,6 @@ export default function Configuracoes() {
                   {
                     text: 'OK',
                     onPress: () => {
-                      // Força o app a recarregar
                       router.replace('/onboarding');
                     }
                   }
@@ -199,7 +234,7 @@ export default function Configuracoes() {
   const limparComprasPagas = async () => {
     Alert.alert(
       "Arquivar Compras Pagas",
-      "Deseja arquivar todas as compras já pagas?\n\nIsso reduzirá o tamanho do app. Os dados não serão perdidos, mas não aparecerão mais nas listagens.",
+      "Deseja arquivar todas as compras já pagas?\n\nIsso reduzirá o tamanho do app.",
       [
         { text: "Cancelar", style: "cancel" },
         {
@@ -235,7 +270,7 @@ export default function Configuracoes() {
   const limparTodosOsDados = async () => {
     Alert.alert(
       "⚠️ ATENÇÃO",
-      "Deseja APAGAR TODOS OS DADOS?\n\nClientes, Produtos, Compras e Movimentações serão PERMANENTEMENTE removidos.\n\nEsta ação NÃO PODE SER DESFEITA!",
+      "Deseja APAGAR TODOS OS DADOS?",
       [
         { text: "Cancelar", style: "cancel" },
         {
@@ -244,7 +279,7 @@ export default function Configuracoes() {
           onPress: () => {
             Alert.alert(
               "Confirmação Final",
-              "Tem ABSOLUTA CERTEZA?\n\nDigite OK para confirmar.",
+              "Tem ABSOLUTA CERTEZA?",
               [
                 { text: "Cancelar", style: "cancel" },
                 {
@@ -254,10 +289,7 @@ export default function Configuracoes() {
                     try {
                       await storage.limparTodosDados();
                       await carregarDados();
-                      Alert.alert(
-                        "Concluído",
-                        "Todos os dados foram removidos."
-                      );
+                      Alert.alert("Concluído", "Todos os dados foram removidos.");
                     } catch (error) {
                       Alert.alert("Erro", "Não foi possível limpar os dados.");
                     }
@@ -273,9 +305,7 @@ export default function Configuracoes() {
 
   const restaurarComprasArquivadas = async () => {
     try {
-      const arquivadas = await AsyncStorage.getItem(
-        "@caderneta:compras_arquivadas"
-      );
+      const arquivadas = await AsyncStorage.getItem("@caderneta:compras_arquivadas");
       if (!arquivadas) {
         Alert.alert("Informação", "Não há compras arquivadas para restaurar.");
         return;
@@ -324,8 +354,10 @@ export default function Configuracoes() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loadingText}>Carregando...</Text>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
+          Carregando...
+        </Text>
       </View>
     );
   }
@@ -337,7 +369,7 @@ export default function Configuracoes() {
           onPress={() => router.back()}
           style={styles.btnVoltar}
         >
-          <Text style={styles.btnVoltarText}>← Voltar</Text>
+          <Text style={[styles.btnVoltarText, { color: colors.primary }]}>← Voltar</Text>
         </TouchableOpacity>
 
         <Text style={styles.titulo}>⚙️ Configurações</Text>
@@ -347,13 +379,37 @@ export default function Configuracoes() {
       </View>
 
       <ScrollView style={styles.content}>
+        {/* NOVA SEÇÃO: APARÊNCIA */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🎨 Aparência</Text>
+
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={handleSelecionarTema}
+            activeOpacity={0.7}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: isDark ? colors.cardInfo : '#E3F2FD' }]}>
+              <Text style={styles.actionIconText}>
+                {themeMode === 'dark' ? '🌙' : themeMode === 'light' ? '☀️' : '🔄'}
+              </Text>
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={styles.actionTitle}>Tema do Aplicativo</Text>
+              <Text style={styles.actionDescription}>
+                {getTemaAtualTexto()}
+              </Text>
+            </View>
+            <Text style={styles.actionArrow}>›</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Uso de Armazenamento */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>💾 Uso de Armazenamento</Text>
 
           <View style={styles.storageCard}>
             <View style={styles.storageHeader}>
-              <Text style={styles.storageSize}>
+              <Text style={[styles.storageSize, { color: colors.primary }]}>
                 {formatarTamanho(tamanhoArmazenamento)}
               </Text>
               <Text style={styles.storageLabel}>em uso</Text>
@@ -382,7 +438,7 @@ export default function Configuracoes() {
 
             {tamanhoArmazenamento > 500 && (
               <View style={styles.warningBox}>
-                <Text style={styles.warningText}>
+                <Text style={[styles.warningText, { color: colors.warning }]}>
                   ⚠️ Seu armazenamento está ficando grande. Considere limpar
                   dados antigos.
                 </Text>
@@ -411,6 +467,8 @@ export default function Configuracoes() {
                     manterMovimentacoes: value,
                   })
                 }
+                trackColor={{ false: colors.border, true: colors.primary }}
+                thumbColor={colors.card}
               />
             </View>
           </View>
@@ -425,7 +483,7 @@ export default function Configuracoes() {
             onPress={authAtiva ? handleDesativarPIN : handleConfigurarPIN}
             activeOpacity={0.7}
           >
-            <View style={styles.actionIcon}>
+            <View style={[styles.actionIcon, { backgroundColor: isDark ? colors.cardInfo : '#E3F2FD' }]}>
               <Text style={styles.actionIconText}>🔒</Text>
             </View>
             <View style={styles.actionContent}>
@@ -447,7 +505,7 @@ export default function Configuracoes() {
               onPress={handleConfigurarPIN}
               activeOpacity={0.7}
             >
-              <View style={styles.actionIcon}>
+              <View style={[styles.actionIcon, { backgroundColor: isDark ? colors.cardInfo : '#E3F2FD' }]}>
                 <Text style={styles.actionIconText}>🔑</Text>
               </View>
               <View style={styles.actionContent}>
@@ -465,7 +523,7 @@ export default function Configuracoes() {
             onPress={handleResetarOnboarding}
             activeOpacity={0.7}
           >
-            <View style={styles.actionIcon}>
+            <View style={[styles.actionIcon, { backgroundColor: isDark ? colors.cardInfo : '#E3F2FD' }]}>
               <Text style={styles.actionIconText}>🎓</Text>
             </View>
             <View style={styles.actionContent}>
@@ -487,7 +545,7 @@ export default function Configuracoes() {
             onPress={limparMovimentacoesAntigas}
             activeOpacity={0.7}
           >
-            <View style={styles.actionIcon}>
+            <View style={[styles.actionIcon, { backgroundColor: isDark ? colors.cardInfo : '#E3F2FD' }]}>
               <Text style={styles.actionIconText}>🧹</Text>
             </View>
             <View style={styles.actionContent}>
@@ -507,7 +565,7 @@ export default function Configuracoes() {
             onPress={limparComprasPagas}
             activeOpacity={0.7}
           >
-            <View style={styles.actionIcon}>
+            <View style={[styles.actionIcon, { backgroundColor: isDark ? colors.cardSuccess : '#E8F5E9' }]}>
               <Text style={styles.actionIconText}>📦</Text>
             </View>
             <View style={styles.actionContent}>
@@ -524,7 +582,7 @@ export default function Configuracoes() {
             onPress={restaurarComprasArquivadas}
             activeOpacity={0.7}
           >
-            <View style={styles.actionIcon}>
+            <View style={[styles.actionIcon, { backgroundColor: isDark ? colors.cardInfo : '#E3F2FD' }]}>
               <Text style={styles.actionIconText}>↩️</Text>
             </View>
             <View style={styles.actionContent}>
@@ -541,7 +599,7 @@ export default function Configuracoes() {
 
         {/* Zona de Perigo */}
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, styles.dangerTitle]}>
+          <Text style={[styles.sectionTitle, { color: colors.danger }]}>
             ⚠️ Zona de Perigo
           </Text>
 
@@ -550,11 +608,11 @@ export default function Configuracoes() {
             onPress={limparTodosOsDados}
             activeOpacity={0.7}
           >
-            <View style={[styles.actionIcon, styles.dangerIcon]}>
+            <View style={[styles.actionIcon, { backgroundColor: isDark ? colors.cardDanger : '#FFEBEE' }]}>
               <Text style={styles.actionIconText}>🗑️</Text>
             </View>
             <View style={styles.actionContent}>
-              <Text style={[styles.actionTitle, styles.dangerText]}>
+              <Text style={[styles.actionTitle, { color: colors.danger }]}>
                 Apagar Todos os Dados
               </Text>
               <Text style={styles.actionDescription}>
@@ -569,206 +627,193 @@ export default function Configuracoes() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-    marginBottom: 60,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f5f5f5",
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: "#666",
-  },
-  header: {
-    backgroundColor: "#fff",
-    paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
-  },
-  btnVoltar: {
-    marginBottom: 12,
-  },
-  btnVoltarText: {
-    fontSize: 16,
-    color: "#007AFF",
-    fontWeight: "500",
-  },
-  titulo: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#1a1a1a",
-    marginBottom: 4,
-  },
-  subtitulo: {
-    fontSize: 14,
-    color: "#666",
-  },
-  content: {
-    flex: 1,
-  },
-  section: {
-    padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#1a1a1a",
-    marginBottom: 16,
-  },
-  dangerTitle: {
-    color: "#e74c3c",
-  },
-  storageCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  storageHeader: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  storageSize: {
-    fontSize: 36,
-    fontWeight: "700",
-    color: "#007AFF",
-  },
-  storageLabel: {
-    fontSize: 14,
-    color: "#666",
-    marginTop: 4,
-  },
-  statsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-    marginBottom: 16,
-  },
-  statItem: {
-    flex: 1,
-    minWidth: "45%",
-    alignItems: "center",
-    padding: 12,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#1a1a1a",
-  },
-  statLabel: {
-    fontSize: 12,
-    color: "#666",
-    marginTop: 4,
-  },
-  warningBox: {
-    backgroundColor: "#FFF3E0",
-    borderRadius: 8,
-    padding: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: "#f39c12",
-  },
-  warningText: {
-    fontSize: 13,
-    color: "#f39c12",
-    lineHeight: 18,
-  },
-  preferenceCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  preferenceRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  preferenceInfo: {
-    flex: 1,
-    marginRight: 16,
-  },
-  preferenceTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1a1a1a",
-    marginBottom: 4,
-  },
-  preferenceDescription: {
-    fontSize: 13,
-    color: "#666",
-    lineHeight: 18,
-  },
-  actionCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  dangerCard: {
-    borderWidth: 2,
-    borderColor: "#FFEBEE",
-  },
-  actionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "#E3F2FD",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 16,
-  },
-  dangerIcon: {
-    backgroundColor: "#FFEBEE",
-  },
-  actionIconText: {
-    fontSize: 24,
-  },
-  actionContent: {
-    flex: 1,
-  },
-  actionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1a1a1a",
-    marginBottom: 4,
-  },
-  dangerText: {
-    color: "#e74c3c",
-  },
-  actionDescription: {
-    fontSize: 13,
-    color: "#666",
-    lineHeight: 18,
-  },
-  actionArrow: {
-    fontSize: 28,
-    color: "#ccc",
-    fontWeight: "300",
-  },
-});
+function createStyles(colors: any, isDark: boolean) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: colors.background,
+    },
+    loadingText: {
+      marginTop: 12,
+      fontSize: 16,
+    },
+    header: {
+      backgroundColor: colors.card,
+      paddingTop: 60,
+      paddingBottom: 20,
+      paddingHorizontal: 20,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    btnVoltar: {
+      marginBottom: 12,
+    },
+    btnVoltarText: {
+      fontSize: 16,
+      fontWeight: "500",
+    },
+    titulo: {
+      fontSize: 28,
+      fontWeight: "700",
+      color: colors.text,
+      marginBottom: 4,
+    },
+    subtitulo: {
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
+    content: {
+      flex: 1,
+    },
+    section: {
+      padding: 16,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+      color: colors.text,
+      marginBottom: 16,
+    },
+    storageCard: {
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 20,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: isDark ? 0.3 : 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    storageHeader: {
+      alignItems: "center",
+      marginBottom: 20,
+    },
+    storageSize: {
+      fontSize: 36,
+      fontWeight: "700",
+    },
+    storageLabel: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginTop: 4,
+    },
+    statsGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 12,
+      marginBottom: 16,
+    },
+    statItem: {
+      flex: 1,
+      minWidth: "45%",
+      alignItems: "center",
+      padding: 12,
+      backgroundColor: colors.background,
+      borderRadius: 8,
+    },
+    statValue: {
+      fontSize: 24,
+      fontWeight: "700",
+      color: colors.text,
+    },
+    statLabel: {
+      fontSize: 12,
+      color: colors.textSecondary,
+      marginTop: 4,
+    },
+    warningBox: {
+      backgroundColor: colors.cardWarning,
+      borderRadius: 8,
+      padding: 12,
+      borderLeftWidth: 4,
+      borderLeftColor: colors.warning,
+    },
+    warningText: {
+      fontSize: 13,
+      lineHeight: 18,
+    },
+    preferenceCard: {
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 16,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: isDark ? 0.3 : 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    preferenceRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    preferenceInfo: {
+      flex: 1,
+      marginRight: 16,
+    },
+    preferenceTitle: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.text,
+      marginBottom: 4,
+    },
+    preferenceDescription: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      lineHeight: 18,
+    },
+    actionCard: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 12,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: isDark ? 0.3 : 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    dangerCard: {
+      borderWidth: 2,
+      borderColor: isDark ? colors.cardDanger : '#FFEBEE',
+    },
+    actionIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      alignItems: "center",
+      justifyContent: "center",
+      marginRight: 16,
+    },
+    actionIconText: {
+      fontSize: 24,
+    },
+    actionContent: {
+      flex: 1,
+    },
+    actionTitle: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.text,
+      marginBottom: 4,
+    },
+    actionDescription: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      lineHeight: 18,
+    },
+    actionArrow: {
+      fontSize: 28,
+      color: colors.border,
+      fontWeight: "300",
+    },
+  });
+}

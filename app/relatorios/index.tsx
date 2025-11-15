@@ -2,6 +2,7 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 import * as storage from '../../services/storage';
 import { Cliente, Compra, Produto } from '../../types';
 
@@ -24,6 +25,8 @@ export default function Relatorios() {
     const [clientes, setClientes] = useState<Cliente[]>([]);
     const [compras, setCompras] = useState<Compra[]>([]);
     const [produtos, setProdutos] = useState<Produto[]>([]);
+    const { colors, isDark } = useTheme();
+    const styles = createStyles(colors, isDark);
 
     const carregarDados = async () => {
         try {
@@ -171,27 +174,29 @@ export default function Relatorios() {
                 </View>
             </View>
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+
                 {/* Estatísticas Gerais */}
+
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Resumo Geral</Text>
 
                     <View style={styles.statsGrid}>
-                        <View style={[styles.statCard, { backgroundColor: '#E8F5E9' }]}>
+                        <View style={[styles.statCard, { backgroundColor: colors.cardSuccess }]}>
                             <Text style={styles.statValue}>{formatarValor(stats.totalVendido)}</Text>
                             <Text style={styles.statLabel}>Total Vendido</Text>
                         </View>
 
-                        <View style={[styles.statCard, { backgroundColor: '#FFEBEE' }]}>
+                        <View style={[styles.statCard, { backgroundColor: colors.cardDanger }]}>
                             <Text style={styles.statValue}>{formatarValor(stats.totalPendente)}</Text>
                             <Text style={styles.statLabel}>A Receber</Text>
                         </View>
 
-                        <View style={[styles.statCard, { backgroundColor: '#E3F2FD' }]}>
+                        <View style={[styles.statCard, { backgroundColor: colors.cardWarning }]}>
                             <Text style={styles.statValue}>{formatarValor(stats.ticketMedio)}</Text>
                             <Text style={styles.statLabel}>Ticket Médio</Text>
                         </View>
 
-                        <View style={[styles.statCard, { backgroundColor: '#F3E5F5' }]}>
+                        <View style={[styles.statCard, { backgroundColor: colors.cardInfo }]}>
                             <Text style={styles.statValue}>{stats.taxaPagamento.toFixed(1)}%</Text>
                             <Text style={styles.statLabel}>Taxa Pagamento</Text>
                         </View>
@@ -277,190 +282,192 @@ export default function Relatorios() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f5f5f5',
-    },
-    headerContent: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    btnExportar: {
-        backgroundColor: '#007AFF',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 8,
-    },
+function createStyles(colors: any, isDark: boolean) {
+    return StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: colors.background,
+        },
+        headerContent: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+        },
+        btnExportar: {
+            backgroundColor: colors.primary,
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            borderRadius: 8,
+        },
 
-    btnExportarText: {
-        color: '#fff',
-        fontWeight: '600',
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f5f5f5',
-    },
-    loadingText: {
-        marginTop: 12,
-        fontSize: 16,
-        color: '#666',
-    },
-    header: {
-        backgroundColor: '#fff',
-        paddingTop: 60,
-        paddingBottom: 20,
-        paddingHorizontal: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
-    },
-    btnVoltar: {
-        marginBottom: 12,
-    },
-    btnVoltarText: {
-        fontSize: 16,
-        color: '#007AFF',
-        fontWeight: '500',
-    },
-    titulo: {
-        fontSize: 28,
-        fontWeight: '700',
-        color: '#1a1a1a',
-        marginBottom: 4,
-    },
-    subtitulo: {
-        fontSize: 14,
-        color: '#666',
-    },
-    content: {
-        flex: 1,
-    },
-    section: {
-        padding: 16,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: '#1a1a1a',
-        marginBottom: 16,
-    },
-    statsGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 12,
-        marginBottom: 16,
-    },
-    statCard: {
-        width: '48%',
-        borderRadius: 12,
-        padding: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    statValue: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: '#1a1a1a',
-        marginBottom: 4,
-    },
-    statLabel: {
-        fontSize: 13,
-        color: '#666',
-    },
-    infoRow: {
-        flexDirection: 'row',
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    infoItem: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    infoValue: {
-        fontSize: 24,
-        fontWeight: '700',
-        color: '#007AFF',
-        marginBottom: 4,
-    },
-    infoLabel: {
-        fontSize: 12,
-        color: '#666',
-        textAlign: 'center',
-    },
-    rankCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    rankPosition: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: '#007AFF',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 12,
-    },
-    rankNumber: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#fff',
-    },
-    rankInfo: {
-        flex: 1,
-    },
-    rankName: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#1a1a1a',
-        marginBottom: 4,
-    },
-    rankDetail: {
-        fontSize: 13,
-        color: '#666',
-    },
-    rankValue: {
-        alignItems: 'flex-end',
-    },
-    rankValueText: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#27ae60',
-    },
-    emptyCard: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 32,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    emptyText: {
-        fontSize: 14,
-        color: '#999',
-        textAlign: 'center',
-    },
-});
+        btnExportarText: {
+            color: colors.text,
+            fontWeight: '600',
+        },
+        loadingContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: colors.background,
+        },
+        loadingText: {
+            marginTop: 12,
+            fontSize: 16,
+            color: colors.loadingText,
+        },
+        header: {
+            backgroundColor: colors.card,
+            paddingTop: 60,
+            paddingBottom: 20,
+            paddingHorizontal: 20,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.divider,
+        },
+        btnVoltar: {
+            marginBottom: 12,
+        },
+        btnVoltarText: {
+            fontSize: 16,
+            color: '#007AFF',
+            fontWeight: '500',
+        },
+        titulo: {
+            fontSize: 28,
+            fontWeight: '700',
+            color: colors.text,
+            marginBottom: 4,
+        },
+        subtitulo: {
+            fontSize: 14,
+            color: colors.textSecondary,
+        },
+        content: {
+            flex: 1,
+        },
+        section: {
+            padding: 16,
+        },
+        sectionTitle: {
+            fontSize: 18,
+            fontWeight: '700',
+            color: colors.text,
+            marginBottom: 16,
+        },
+        statsGrid: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: 12,
+            marginBottom: 16,
+        },
+        statCard: {
+            width: '48%',
+            borderRadius: 12,
+            padding: 16,
+            shadowColor: colors.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+        },
+        statValue: {
+            fontSize: 20,
+            fontWeight: '700',
+            color: colors.text,
+            marginBottom: 4,
+        },
+        statLabel: {
+            fontSize: 13,
+            color: colors.textSecondary,
+        },
+        infoRow: {
+            flexDirection: 'row',
+            backgroundColor: colors.card,
+            borderRadius: 12,
+            padding: 16,
+            shadowColor: colors.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+        },
+        infoItem: {
+            flex: 1,
+            alignItems: 'center',
+        },
+        infoValue: {
+            fontSize: 24,
+            fontWeight: '700',
+            color: '#007AFF',
+            marginBottom: 4,
+        },
+        infoLabel: {
+            fontSize: 12,
+            color: colors.textSecondary,
+            textAlign: 'center',
+        },
+        rankCard: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: colors.card,
+            borderRadius: 12,
+            padding: 16,
+            marginBottom: 12,
+            shadowColor: colors.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+        },
+        rankPosition: {
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: colors.primary,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 12,
+        },
+        rankNumber: {
+            fontSize: 16,
+            fontWeight: '700',
+            color: colors.text,
+        },
+        rankInfo: {
+            flex: 1,
+        },
+        rankName: {
+            fontSize: 16,
+            fontWeight: '600',
+            color: '#1a1a1a',
+            marginBottom: 4,
+        },
+        rankDetail: {
+            fontSize: 13,
+            color: colors.textSecondary,
+        },
+        rankValue: {
+            alignItems: 'flex-end',
+        },
+        rankValueText: {
+            fontSize: 16,
+            fontWeight: '700',
+            color: colors.success,
+        },
+        emptyCard: {
+            backgroundColor: colors.card,
+            borderRadius: 12,
+            padding: 32,
+            alignItems: 'center',
+            shadowColor: colors.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+        },
+        emptyText: {
+            fontSize: 14,
+            color: colors.emptyTitle,
+            textAlign: 'center',
+        },
+    });
+}

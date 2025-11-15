@@ -3,6 +3,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ClienteCard from '../../components/ClienteCard';
+import { useTheme } from '../../contexts/ThemeContext';
 import * as storage from '../../services/storage';
 import { Cliente, Compra } from '../../types';
 
@@ -12,6 +13,8 @@ export default function ClientesDevedores() {
     const [compras, setCompras] = useState<Compra[]>([]);
     const [loading, setLoading] = useState(true);
     const [totalGeral, setTotalGeral] = useState(0);
+    const { colors, isDark } = useTheme();
+    const styles = createStyles(colors, isDark);
 
     const carregarDados = async () => {
         try {
@@ -138,90 +141,92 @@ export default function ClientesDevedores() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f5f5f5',
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f5f5f5',
-    },
-    loadingText: {
-        marginTop: 12,
-        fontSize: 16,
-        color: '#666',
-    },
-    header: {
-        backgroundColor: '#fff',
-        paddingTop: 60,
-        paddingBottom: 20,
-        paddingHorizontal: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
-    },
-    btnVoltar: {
-        marginBottom: 12,
-    },
-    btnVoltarText: {
-        fontSize: 16,
-        color: '#007AFF',
-        fontWeight: '500',
-    },
-    titulo: {
-        fontSize: 28,
-        fontWeight: '700',
-        color: '#1a1a1a',
-        marginBottom: 4,
-    },
-    subtitulo: {
-        fontSize: 14,
-        color: '#666',
-    },
-    totalCard: {
-        backgroundColor: '#FFEBEE',
-        margin: 16,
-        padding: 20,
-        borderRadius: 12,
-        borderLeftWidth: 4,
-        borderLeftColor: '#e74c3c',
-    },
-    totalLabel: {
-        fontSize: 14,
-        color: '#666',
-        marginBottom: 8,
-    },
-    totalValor: {
-        fontSize: 32,
-        fontWeight: '700',
-        color: '#e74c3c',
-    },
-    lista: {
-        paddingVertical: 8,
-    },
-    empty: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 80,
-        paddingHorizontal: 40,
-    },
-    emptyText: {
-        fontSize: 64,
-        marginBottom: 16,
-    },
-    emptyTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#1a1a1a',
-        marginBottom: 8,
-        textAlign: 'center',
-    },
-    emptySubtitle: {
-        fontSize: 14,
-        color: '#666',
-        textAlign: 'center',
-        lineHeight: 20,
-    },
-});
+function createStyles(colors: any, isDark: boolean) {
+    return StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: colors.background,
+        },
+        loadingContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: colors.background,
+        },
+        loadingText: {
+            marginTop: 12,
+            fontSize: 16,
+            color: colors.loadingText,
+        },
+        header: {
+            backgroundColor: colors.background,
+            paddingTop: 60,
+            paddingBottom: 20,
+            paddingHorizontal: 20,
+            borderBottomWidth: 1,
+            borderBottomColor: '#e0e0e0',
+        },
+        btnVoltar: {
+            marginBottom: 12,
+        },
+        btnVoltarText: {
+            fontSize: 16,
+            color: '#007AFF',
+            fontWeight: '500',
+        },
+        titulo: {
+            fontSize: 28,
+            fontWeight: '700',
+            color: colors.text,
+            marginBottom: 4,
+        },
+        subtitulo: {
+            fontSize: 14,
+            color: colors.textSecondary,
+        },
+        totalCard: {
+            backgroundColor: colors.background,
+            margin: 16,
+            padding: 20,
+            borderRadius: 12,
+            borderLeftWidth: 4,
+            borderLeftColor: colors.danger,
+        },
+        totalLabel: {
+            fontSize: 14,
+            color: colors.textSecondary,
+            marginBottom: 8,
+        },
+        totalValor: {
+            fontSize: 32,
+            fontWeight: '700',
+            color: colors.danger,
+        },
+        lista: {
+            paddingVertical: 8,
+        },
+        empty: {
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 80,
+            paddingHorizontal: 40,
+        },
+        emptyText: {
+            fontSize: 64,
+            marginBottom: 16,
+        },
+        emptyTitle: {
+            fontSize: 28,
+            fontWeight: '600',
+            color: colors.emptyTitle,
+            marginBottom: 8,
+            textAlign: 'center',
+        },
+        emptySubtitle: {
+            fontSize: 18,
+            color: colors.textSecondary,
+            textAlign: 'center',
+            lineHeight: 20,
+        },
+    });
+}

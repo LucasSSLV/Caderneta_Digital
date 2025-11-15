@@ -1,20 +1,23 @@
-// app/index.tsx
+// app/index.tsx - EXEMPLO COM TEMA ESCURO
 import { useFocusEffect, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '../contexts/ThemeContext';
 import * as storage from '../services/storage';
 import { Cliente, Compra, Produto } from '../types';
 
 export default function Index() {
   const router = useRouter();
+  const { colors, isDark } = useTheme();
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [compras, setCompras] = useState<Compra[]>([]);
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [loading, setLoading] = useState(true);
   const [produtosEstoqueBaixo, setProdutosEstoqueBaixo] = useState(0);
 
-  // adicionando contagem de produtos com estoque baixo
+  const styles = createStyles(colors, isDark);
+
   const carregarDados = async () => {
     try {
       setLoading(true);
@@ -34,24 +37,6 @@ export default function Index() {
       setLoading(false);
     }
   };
-
-  // const carregarDados = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const [clientesData, comprasData, produtosData] = await Promise.all([
-  //       storage.carregarClientes(),
-  //       storage.carregarCompras(),
-  //       storage.carregarProdutos(),
-  //     ]);
-  //     setClientes(clientesData);
-  //     setCompras(comprasData);
-  //     setProdutos(produtosData);
-  //   } catch (error) {
-  //     console.error(error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   useFocusEffect(
     useCallback(() => {
@@ -101,7 +86,7 @@ export default function Index() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>Carregando...</Text>
       </View>
     );
@@ -111,7 +96,7 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="dark" />
+      <StatusBar style={isDark ? "light" : "dark"} />
 
       <View style={styles.header}>
         <View style={styles.headerContent}>
@@ -127,8 +112,8 @@ export default function Index() {
             <Text style={styles.btnConfigText}>⚙️</Text>
           </TouchableOpacity>
         </View>
-
       </View>
+
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* ALERTA DE ESTOQUE BAIXO */}
         {produtosEstoqueBaixo > 0 && (
@@ -178,11 +163,11 @@ export default function Index() {
               onPress={() => router.push('/clientes/lista')}
               activeOpacity={0.7}
             >
-              <View style={[styles.menuIcon, { backgroundColor: '#E3F2FD' }]}>
+              <View style={[styles.menuIcon, { backgroundColor: isDark ? colors.cardInfo : '#E3F2FD' }]}>
                 <Text style={styles.menuIconText}>👥</Text>
               </View>
               <Text style={styles.menuTitle}>Clientes</Text>
-              <Text style={styles.menuCount}>{stats.totalClientes}</Text>
+              <Text style={[styles.menuCount, { color: colors.primary }]}>{stats.totalClientes}</Text>
             </TouchableOpacity>
 
             {/* Produtos */}
@@ -191,11 +176,11 @@ export default function Index() {
               onPress={() => router.push('/produtos/lista')}
               activeOpacity={0.7}
             >
-              <View style={[styles.menuIcon, { backgroundColor: '#F3E5F5' }]}>
+              <View style={[styles.menuIcon, { backgroundColor: isDark ? colors.cardPurple : '#F3E5F5' }]}>
                 <Text style={styles.menuIconText}>📦</Text>
               </View>
               <Text style={styles.menuTitle}>Produtos</Text>
-              <Text style={[styles.menuCount, { color: '#9C27B0' }]}>{stats.totalProdutos}</Text>
+              <Text style={[styles.menuCount, { color: colors.secondary }]}>{stats.totalProdutos}</Text>
             </TouchableOpacity>
 
             {/* Devedores */}
@@ -204,11 +189,11 @@ export default function Index() {
               onPress={() => router.push('/clientes/devedores')}
               activeOpacity={0.7}
             >
-              <View style={[styles.menuIcon, { backgroundColor: '#FFEBEE' }]}>
+              <View style={[styles.menuIcon, { backgroundColor: isDark ? colors.cardDanger : '#FFEBEE' }]}>
                 <Text style={styles.menuIconText}>💰</Text>
               </View>
               <Text style={styles.menuTitle}>Devedores</Text>
-              <Text style={[styles.menuCount, styles.countAlert]}>{stats.clientesDevedores}</Text>
+              <Text style={[styles.menuCount, { color: colors.danger }]}>{stats.clientesDevedores}</Text>
             </TouchableOpacity>
 
             {/* Compras Pendentes */}
@@ -217,11 +202,11 @@ export default function Index() {
               onPress={() => router.push('/compras/pendentes')}
               activeOpacity={0.7}
             >
-              <View style={[styles.menuIcon, { backgroundColor: '#FFF3E0' }]}>
+              <View style={[styles.menuIcon, { backgroundColor: isDark ? colors.cardWarning : '#FFF3E0' }]}>
                 <Text style={styles.menuIconText}>📋</Text>
               </View>
               <Text style={styles.menuTitle}>Pendentes</Text>
-              <Text style={[styles.menuCount, styles.countWarning]}>{stats.comprasPendentes}</Text>
+              <Text style={[styles.menuCount, { color: colors.warning }]}>{stats.comprasPendentes}</Text>
             </TouchableOpacity>
 
             {/* Compras Pagas */}
@@ -230,32 +215,33 @@ export default function Index() {
               onPress={() => router.push('/compras/pagas')}
               activeOpacity={0.7}
             >
-              <View style={[styles.menuIcon, { backgroundColor: '#E8F5E9' }]}>
+              <View style={[styles.menuIcon, { backgroundColor: isDark ? colors.cardSuccess : '#E8F5E9' }]}>
                 <Text style={styles.menuIconText}>✅</Text>
               </View>
               <Text style={styles.menuTitle}>Pagas</Text>
-              <Text style={[styles.menuCount, styles.countSuccess]}>
+              <Text style={[styles.menuCount, { color: colors.success }]}>
                 {stats.totalCompras - stats.comprasPendentes}
               </Text>
             </TouchableOpacity>
 
-            {/* relatorios */}
+            {/* Relatórios */}
             <TouchableOpacity
               style={styles.menuCard}
               onPress={() => router.push('/relatorios')}
               activeOpacity={0.7}
             >
-              <View style={[styles.menuIcon, { backgroundColor: '#E1F5FE' }]}>
+              <View style={[styles.menuIcon, { backgroundColor: isDark ? colors.cardInfo : '#E1F5FE' }]}>
                 <Text style={styles.menuIconText}>📊</Text>
               </View>
               <Text style={styles.menuTitle}>Relatórios</Text>
             </TouchableOpacity>
           </View>
         </View>
+
         {/* Ações Rápidas */}
         <View style={styles.actionsContainer}>
           <Text style={styles.sectionTitle}>Ações Rápidas</Text>
-          {/* novo cliente */}
+          
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => router.push('/clientes/novo')}
@@ -270,7 +256,7 @@ export default function Index() {
             </View>
             <Text style={styles.actionArrow}>›</Text>
           </TouchableOpacity>
-          {/* histórico de produtos */}
+
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => router.push('/produtos/historico-movimentacoes')}
@@ -291,250 +277,241 @@ export default function Index() {
   );
 }
 
-const styles = StyleSheet.create({
-  headerContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  btnConfig: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#E3F2FD',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  btnConfigText: {
-    fontSize: 20,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    marginBottom: 60,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#666',
-  },
-  header: {
-    backgroundColor: '#007AFF',
-    paddingTop: 60,
-    paddingBottom: 24,
-    paddingHorizontal: 20,
-  },
-  titulo: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#fff',
-    marginBottom: 4,
-  },
-  subtitulo: {
-    fontSize: 16,
-    color: '#fff',
-    opacity: 0.9,
-  },
-  content: {
-    flex: 1,
-  },
-  alertaEstoque: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF3E0',
-    marginHorizontal: 16,
-    marginTop: 16,
-    padding: 16,
-    borderRadius: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: '#f39c12',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  alertaIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#FFE0B2',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  alertaIcon: {
-    fontSize: 24,
-  },
-  alertaContent: {
-    flex: 1,
-  },
-  alertaTitulo: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#f39c12',
-    marginBottom: 4,
-  },
-  alertaTexto: {
-    fontSize: 13,
-    color: '#666',
-  },
-  alertaSeta: {
-    fontSize: 28,
-    color: '#f39c12',
-    fontWeight: '300',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    gap: 12,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  statCardLarge: {
-    paddingVertical: 20,
-  },
-  statLabel: {
-    fontSize: 13,
-    color: '#666',
-    marginBottom: 8,
-    fontWeight: '500',
-  },
-  statValue: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1a1a1a',
-  },
-  statValueLarge: {
-    fontSize: 24,
-  },
-  valorDevido: {
-    color: '#e74c3c',
-  },
-  valorPago: {
-    color: '#27ae60',
-  },
-  menuContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 24,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1a1a1a',
-    marginBottom: 16,
-  },
-  menuGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  menuCard: {
-    width: '48%',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  menuIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-  },
-  menuIconText: {
-    fontSize: 32,
-  },
-  menuTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  menuCount: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#007AFF',
-  },
-  countAlert: {
-    color: '#e74c3c',
-  },
-  countWarning: {
-    color: '#f39c12',
-  },
-  countSuccess: {
-    color: '#27ae60',
-  },
-  actionsContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 24,
-    paddingBottom: 24,
-    gap: 12,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  actionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#E3F2FD',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  },
-  actionIconText: {
-    fontSize: 24,
-  },
-  actionContent: {
-    flex: 1,
-  },
-  actionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 2,
-  },
-  actionSubtitle: {
-    fontSize: 13,
-    color: '#666',
-  },
-  actionArrow: {
-    fontSize: 28,
-    color: '#ccc',
-    fontWeight: '300',
-  },
-});
+function createStyles(colors: any, isDark: boolean) {
+  return StyleSheet.create({
+    headerContent: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    btnConfig: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: isDark ? colors.cardInfo : '#E3F2FD',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    btnConfigText: {
+      fontSize: 20,
+    },
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.background,
+    },
+    loadingText: {
+      marginTop: 12,
+      fontSize: 16,
+      color: colors.textSecondary,
+    },
+    header: {
+      backgroundColor: colors.primary,
+      paddingTop: 60,
+      paddingBottom: 24,
+      paddingHorizontal: 20,
+    },
+    titulo: {
+      fontSize: 28,
+      fontWeight: '700',
+      color: '#fff',
+      marginBottom: 4,
+    },
+    subtitulo: {
+      fontSize: 16,
+      color: '#fff',
+      opacity: 0.9,
+    },
+    content: {
+      flex: 1,
+    },
+    alertaEstoque: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.cardWarning,
+      marginHorizontal: 16,
+      marginTop: 16,
+      padding: 16,
+      borderRadius: 12,
+      borderLeftWidth: 4,
+      borderLeftColor: colors.warning,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: isDark ? 0.3 : 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    alertaIconContainer: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: isDark ? colors.cardWarning : '#FFE0B2',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 12,
+    },
+    alertaIcon: {
+      fontSize: 24,
+    },
+    alertaContent: {
+      flex: 1,
+    },
+    alertaTitulo: {
+      fontSize: 15,
+      fontWeight: '700',
+      color: colors.warning,
+      marginBottom: 4,
+    },
+    alertaTexto: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    alertaSeta: {
+      fontSize: 28,
+      color: colors.warning,
+      fontWeight: '300',
+    },
+    statsContainer: {
+      flexDirection: 'row',
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      gap: 12,
+    },
+    statCard: {
+      flex: 1,
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 16,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: isDark ? 0.3 : 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    statCardLarge: {
+      paddingVertical: 20,
+    },
+    statLabel: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginBottom: 8,
+      fontWeight: '500',
+    },
+    statValue: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    statValueLarge: {
+      fontSize: 24,
+    },
+    valorDevido: {
+      color: colors.danger,
+    },
+    valorPago: {
+      color: colors.success,
+    },
+    menuContainer: {
+      paddingHorizontal: 16,
+      paddingTop: 24,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: 16,
+    },
+    menuGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 12,
+    },
+    menuCard: {
+      width: '48%',
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 20,
+      alignItems: 'center',
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: isDark ? 0.3 : 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    menuIcon: {
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 12,
+    },
+    menuIconText: {
+      fontSize: 32,
+    },
+    menuTitle: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: 4,
+      textAlign: 'center',
+    },
+    menuCount: {
+      fontSize: 24,
+      fontWeight: '700',
+    },
+    actionsContainer: {
+      paddingHorizontal: 16,
+      paddingTop: 24,
+      paddingBottom: 24,
+      gap: 12,
+    },
+    actionButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 16,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: isDark ? 0.3 : 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    actionIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: isDark ? colors.cardInfo : '#E3F2FD',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 16,
+    },
+    actionIconText: {
+      fontSize: 24,
+    },
+    actionContent: {
+      flex: 1,
+    },
+    actionTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    actionSubtitle: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    actionArrow: {
+      fontSize: 28,
+      color: colors.border,
+      fontWeight: '300',
+    },
+  });
+}

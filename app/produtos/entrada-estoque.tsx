@@ -14,8 +14,10 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 import * as storage from '../../services/storage';
 import { Produto } from '../../types';
+
 
 export default function EntradaEstoque() {
     const router = useRouter();
@@ -29,6 +31,11 @@ export default function EntradaEstoque() {
     const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(null);
     const [quantidade, setQuantidade] = useState('');
     const [salvando, setSalvando] = useState(false);
+
+    // colors from theme
+    const { colors, isDark } = useTheme();
+    const styles = createStyles(colors, isDark);
+
 
     const carregarProdutos = async () => {
         try {
@@ -309,264 +316,268 @@ export default function EntradaEstoque() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f5f5f5',
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f5f5f5',
-    },
-    loadingText: {
-        marginTop: 12,
-        fontSize: 16,
-        color: '#666',
-    },
-    header: {
-        backgroundColor: '#fff',
-        paddingTop: 60,
-        paddingBottom: 20,
-        paddingHorizontal: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
-    },
-    btnVoltar: {
-        marginBottom: 12,
-    },
-    btnVoltarText: {
-        fontSize: 16,
-        color: '#007AFF',
-        fontWeight: '500',
-    },
-    titulo: {
-        fontSize: 28,
-        fontWeight: '700',
-        color: '#1a1a1a',
-        marginBottom: 4,
-    },
-    subtitulo: {
-        fontSize: 14,
-        color: '#666',
-    },
-    buscaContainer: {
-        backgroundColor: '#fff',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
-    },
-    buscaInputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#f5f5f5',
-        borderRadius: 10,
-        paddingHorizontal: 12,
-    },
-    buscaIcon: {
-        fontSize: 18,
-        marginRight: 8,
-    },
-    buscaInput: {
-        flex: 1,
-        paddingVertical: 12,
-        fontSize: 16,
-        color: '#1a1a1a',
-    },
-    btnLimpar: {
-        padding: 4,
-    },
-    btnLimparText: {
-        fontSize: 18,
-        color: '#999',
-    },
-    lista: {
-        paddingVertical: 8,
-    },
-    produtoCard: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 16,
-        marginHorizontal: 16,
-        marginVertical: 6,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    produtoInfo: {
-        flex: 1,
-    },
-    produtoNome: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#1a1a1a',
-        marginBottom: 4,
-    },
-    produtoCategoria: {
-        fontSize: 13,
-        color: '#666',
-    },
-    produtoEstoque: {
-        alignItems: 'flex-end',
-        gap: 4,
-    },
-    badgeZerado: {
-        backgroundColor: '#FFEBEE',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 6,
-    },
-    badgeBaixo: {
-        backgroundColor: '#FFF3E0',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 6,
-    },
-    badgeText: {
-        fontSize: 11,
-        fontWeight: '600',
-        color: '#666',
-    },
-    estoqueValor: {
-        fontSize: 16,
-        fontWeight: '700',
-    },
-    semEstoque: {
-        fontSize: 13,
-        color: '#999',
-        fontStyle: 'italic',
-    },
-    empty: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 80,
-        paddingHorizontal: 40,
-    },
-    emptyText: {
-        fontSize: 64,
-        marginBottom: 16,
-    },
-    emptyTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#1a1a1a',
-        marginBottom: 8,
-        textAlign: 'center',
-    },
-    emptySubtitle: {
-        fontSize: 14,
-        color: '#666',
-        textAlign: 'center',
-        lineHeight: 20,
-    },
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'flex-end',
-    },
-    modalContent: {
-        backgroundColor: '#fff',
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
-        padding: 24,
-        paddingBottom: 40,
-    },
-    modalTitle: {
-        fontSize: 22,
-        fontWeight: '700',
-        color: '#1a1a1a',
-        marginBottom: 20,
-        textAlign: 'center',
-    },
-    estoqueAtualCard: {
-        backgroundColor: '#f5f5f5',
-        borderRadius: 8,
-        padding: 16,
-        marginBottom: 20,
-        alignItems: 'center',
-    },
-    estoqueAtualLabel: {
-        fontSize: 13,
-        color: '#666',
-        marginBottom: 4,
-    },
-    estoqueAtualValor: {
-        fontSize: 24,
-        fontWeight: '700',
-        color: '#1a1a1a',
-    },
-    quantidadeContainer: {
-        marginBottom: 20,
-    },
-    label: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: '#1a1a1a',
-        marginBottom: 8,
-    },
-    inputQuantidade: {
-        backgroundColor: '#f5f5f5',
-        borderRadius: 8,
-        padding: 16,
-        fontSize: 24,
-        fontWeight: '700',
-        textAlign: 'center',
-        borderWidth: 1,
-        borderColor: '#e0e0e0',
-    },
-    novoEstoqueCard: {
-        backgroundColor: '#E8F5E9',
-        borderRadius: 8,
-        padding: 16,
-        marginBottom: 20,
-        alignItems: 'center',
-    },
-    novoEstoqueLabel: {
-        fontSize: 13,
-        color: '#666',
-        marginBottom: 4,
-    },
-    novoEstoqueValor: {
-        fontSize: 24,
-        fontWeight: '700',
-        color: '#27ae60',
-    },
-    modalActions: {
-        flexDirection: 'row',
-        gap: 12,
-    },
-    btnModalCancelar: {
-        flex: 1,
-        backgroundColor: '#f5f5f5',
-        borderRadius: 8,
-        padding: 16,
-        alignItems: 'center',
-    },
-    btnModalCancelarText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#666',
-    },
-    btnModalConfirmar: {
-        flex: 1,
-        backgroundColor: '#007AFF',
-        borderRadius: 8,
-        padding: 16,
-        alignItems: 'center',
-    },
-    btnModalConfirmarDisabled: {
-        opacity: 0.6,
-    },
-    btnModalConfirmarText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#fff',
-    },
-});
+function createStyles(colors: any, isDark: boolean) {
+    return StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: colors.background,
+        },
+        loadingContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: colors.background,
+        },
+        loadingText: {
+            marginTop: 12,
+            fontSize: 16,
+            color: colors.loadingText,
+        },
+        header: {
+            backgroundColor: colors.card,
+            paddingTop: 60,
+            paddingBottom: 20,
+            paddingHorizontal: 20,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.divider,
+        },
+        btnVoltar: {
+            marginBottom: 12,
+        },
+        btnVoltarText: {
+            fontSize: 16,
+            color: '#007AFF',
+            fontWeight: '500',
+        },
+        titulo: {
+            fontSize: 28,
+            fontWeight: '700',
+            color: colors.text,
+            marginBottom: 4,
+        },
+        subtitulo: {
+            fontSize: 14,
+            color: colors.textSecondary,
+        },
+        buscaContainer: {
+            backgroundColor: colors.card,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.divider,
+        },
+        buscaInputContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: colors.inputBackground,
+            borderRadius: 10,
+            paddingHorizontal: 12,
+        },
+        buscaIcon: {
+            fontSize: 18,
+            marginRight: 8,
+        },
+        buscaInput: {
+            flex: 1,
+            paddingVertical: 12,
+            fontSize: 16,
+            color: colors.text,
+        },
+        btnLimpar: {
+            padding: 4,
+        },
+        btnLimparText: {
+            fontSize: 18,
+            color: colors.textSecondary,
+        },
+        lista: {
+            paddingVertical: 8,
+        },
+        produtoCard: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            backgroundColor: colors.card,
+            borderRadius: 12,
+            padding: 16,
+            marginHorizontal: 16,
+            marginVertical: 6,
+            shadowColor: colors.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+        },
+        produtoInfo: {
+            flex: 1,
+        },
+        produtoNome: {
+            fontSize: 16,
+            fontWeight: '600',
+            color: colors.text,
+            marginBottom: 4,
+        },
+        produtoCategoria: {
+            fontSize: 13,
+            color: colors.textSecondary,
+        },
+        produtoEstoque: {
+            alignItems: 'flex-end',
+            gap: 4,
+        },
+        badgeZerado: {
+            backgroundColor: colors.cardDanger,
+            paddingHorizontal: 10,
+            paddingVertical: 4,
+            borderRadius: 6,
+        },
+        badgeBaixo: {
+            backgroundColor: colors.cardWarning,
+            paddingHorizontal: 10,
+            paddingVertical: 4,
+            borderRadius: 6,
+        },
+        badgeText: {
+            fontSize: 11,
+            fontWeight: '600',
+            color: colors.text,
+        },
+        estoqueValor: {
+            fontSize: 16,
+            fontWeight: '700',
+        },
+        semEstoque: {
+            fontSize: 13,
+            color: colors.textSecondary,
+            fontStyle: 'italic',
+        },
+        empty: {
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 80,
+            paddingHorizontal: 40,
+        },
+        emptyText: {
+            fontSize: 64,
+            marginBottom: 16,
+        },
+        emptyTitle: {
+            fontSize: 18,
+            fontWeight: '600',
+            color: colors.emptyTitle,
+            marginBottom: 8,
+            textAlign: 'center',
+        },
+        emptySubtitle: {
+            fontSize: 14,
+            color: colors.textSecondary,
+            textAlign: 'center',
+            lineHeight: 20,
+        },
+        modalOverlay: {
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'flex-end',
+        },
+        modalContent: {
+            backgroundColor: colors.card,
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24,
+            padding: 24,
+            paddingBottom: 40,
+        },
+        modalTitle: {
+            fontSize: 22,
+            fontWeight: '700',
+            color: colors.text,
+            marginBottom: 20,
+            textAlign: 'center',
+        },
+        estoqueAtualCard: {
+            backgroundColor: colors.background,
+            borderRadius: 8,
+            padding: 16,
+            marginBottom: 20,
+            alignItems: 'center',
+        },
+        estoqueAtualLabel: {
+            fontSize: 13,
+            color: colors.textSecondary,
+            marginBottom: 4,
+        },
+        estoqueAtualValor: {
+            fontSize: 24,
+            fontWeight: '700',
+            color: colors.primary,
+        },
+        quantidadeContainer: {
+            marginBottom: 20,
+        },
+        label: {
+            fontSize: 15,
+            fontWeight: '600',
+            color: colors.text,
+            marginBottom: 8,
+            textAlign: 'center',
+        },
+        inputQuantidade: {
+            backgroundColor: colors.background,
+            borderRadius: 8,
+            padding: 16,
+            fontSize: 24,
+            fontWeight: '700',
+            textAlign: 'center',
+            borderWidth: 1,
+            color: colors.text,
+            borderColor: colors.divider,
+        },
+        novoEstoqueCard: {
+            backgroundColor: colors.inputBackground,
+            borderRadius: 8,
+            padding: 16,
+            marginBottom: 20,
+            alignItems: 'center',
+        },
+        novoEstoqueLabel: {
+            fontSize: 13,
+            color: colors.textSecondary,
+            marginBottom: 4,
+        },
+        novoEstoqueValor: {
+            fontSize: 24,
+            fontWeight: '700',
+            color: colors.success,
+        },
+        modalActions: {
+            flexDirection: 'row',
+            gap: 12,
+        },
+        btnModalCancelar: {
+            flex: 1,
+            backgroundColor: colors.warning,
+            borderRadius: 8,
+            padding: 16,
+            alignItems: 'center',
+        },
+        btnModalCancelarText: {
+            fontSize: 16,
+            fontWeight: '600',
+            color: colors.card,
+        },
+        btnModalConfirmar: {
+            flex: 1,
+            backgroundColor: colors.primary,
+            borderRadius: 8,
+            padding: 16,
+            alignItems: 'center',
+        },
+        btnModalConfirmarDisabled: {
+            opacity: 0.6,
+        },
+        btnModalConfirmarText: {
+            fontSize: 16,
+            fontWeight: '600',
+            color: colors.card,
+        },
+    });
+}
