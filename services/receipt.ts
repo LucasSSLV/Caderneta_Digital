@@ -451,18 +451,30 @@ export const enviarReciboWhatsApp = async (
     }
 
     const { Linking } = require("react-native");
-    const supported = await Linking.canOpenURL(url);
 
-    if (supported) {
+    // Tenta abrir diretamente sem verificar canOpenURL
+    try {
       await Linking.openURL(url);
-    } else {
-      Alert.alert(
-        "WhatsApp não encontrado",
-        "Instale o WhatsApp para enviar recibos."
-      );
+    } catch (openError) {
+      // Se falhar ao abrir, tenta verificar se o WhatsApp está instalado
+      const supported = await Linking.canOpenURL("whatsapp://send");
+
+      if (!supported) {
+        Alert.alert(
+          "WhatsApp não encontrado",
+          "Instale o WhatsApp para enviar recibos.",
+          [{ text: "OK" }]
+        );
+      } else {
+        // Se o WhatsApp existe mas falhou, tenta novamente
+        await Linking.openURL(url);
+      }
     }
   } catch (error) {
     console.error("Erro ao enviar recibo via WhatsApp:", error);
-    Alert.alert("Erro", "Não foi possível enviar o recibo.");
+    Alert.alert(
+      "Erro",
+      "Não foi possível enviar o recibo. Verifique se o WhatsApp está instalado."
+    );
   }
 };
