@@ -440,17 +440,15 @@ export const enviarReciboWhatsApp = async (
     const texto = gerarTextoRecibo(cliente, compra, numero);
 
     const telefone = cliente.telefone?.replace(/\D/g, "");
-    let url = "";
-
-    if (telefone && telefone.length >= 10) {
-      url = `whatsapp://send?phone=55${telefone}&text=${encodeURIComponent(
-        texto
-      )}`;
-    } else {
-      url = `whatsapp://send?text=${encodeURIComponent(texto)}`;
-    }
-
     const { Linking } = require("react-native");
+
+    // Montar URL do WhatsApp
+    const url =
+      telefone && telefone.length >= 10
+        ? `whatsapp://send?phone=55${telefone}&text=${encodeURIComponent(
+            texto
+          )}`
+        : `whatsapp://send?text=${encodeURIComponent(texto)}`;
 
     // Tenta abrir diretamente sem verificar canOpenURL
     try {

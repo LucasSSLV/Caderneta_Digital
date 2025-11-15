@@ -14,7 +14,7 @@
         "LSApplicationQueriesSchemes": ["whatsapp"]
       }
     },
-    "android": {
+"android": {
       "adaptiveIcon": {
         "backgroundColor": "#00BF63",
         "foregroundImage": "./assets/images/image.png",
@@ -23,6 +23,13 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.sucodefrutyss19.Caderneta_Digital",
+      "permissions": [
+        "BLUETOOTH",
+        "BLUETOOTH_ADMIN",
+        "BLUETOOTH_CONNECT",
+        "BLUETOOTH_SCAN",
+        "ACCESS_FINE_LOCATION"
+      ],
       "intentFilters": [
         {
           "action": "VIEW",
