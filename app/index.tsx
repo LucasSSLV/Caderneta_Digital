@@ -241,7 +241,7 @@ export default function Index() {
         {/* Ações Rápidas */}
         <View style={styles.actionsContainer}>
           <Text style={styles.sectionTitle}>Ações Rápidas</Text>
-          
+
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => router.push('/clientes/novo')}
@@ -279,6 +279,11 @@ export default function Index() {
 
 function createStyles(colors: any, isDark: boolean) {
   return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+      marginBottom: 60,
+    },
     headerContent: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -294,10 +299,6 @@ function createStyles(colors: any, isDark: boolean) {
     },
     btnConfigText: {
       fontSize: 20,
-    },
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
     },
     loadingContainer: {
       flex: 1,

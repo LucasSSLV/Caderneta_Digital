@@ -13,6 +13,7 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 import * as storage from '../../services/storage';
 import { Cliente } from '../../types';
 
@@ -21,6 +22,8 @@ export default function NovoCliente() {
     const [nome, setNome] = useState('');
     const [telefone, setTelefone] = useState('');
     const [salvando, setSalvando] = useState(false);
+    const { colors, isDark } = useTheme();
+    const styles = createStyles(colors, isDark);
 
     const formatarTelefone = (text: string) => {
         // Remove tudo que não é número
@@ -100,7 +103,7 @@ export default function NovoCliente() {
             <ScrollView style={styles.content} keyboardShouldPersistTaps="handled">
                 <View style={styles.form}>
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Nome *</Text>
+                        <Text style={styles.label}>Nome Completo</Text>
                         <TextInput
                             style={styles.input}
                             placeholder="Ex: João Silva"
@@ -109,6 +112,7 @@ export default function NovoCliente() {
                             autoFocus
                             autoCapitalize="words"
                             editable={!salvando}
+                            placeholderTextColor={colors.textSecondary}
                         />
                     </View>
 
@@ -122,6 +126,7 @@ export default function NovoCliente() {
                             keyboardType="phone-pad"
                             maxLength={15}
                             editable={!salvando}
+                            placeholderTextColor={colors.textSecondary}
                         />
                     </View>
 
@@ -149,81 +154,82 @@ export default function NovoCliente() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f5f5f5',
-    },
-    header: {
-        backgroundColor: '#fff',
-        paddingTop: 60,
-        paddingBottom: 20,
-        paddingHorizontal: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
-    },
-    btnVoltar: {
-        marginBottom: 12,
-    },
-    btnVoltarText: {
-        fontSize: 16,
-        color: '#007AFF',
-        fontWeight: '500',
-    },
-    titulo: {
-        fontSize: 28,
-        fontWeight: '700',
-        color: '#1a1a1a',
-    },
-    content: {
-        flex: 1,
-    },
-    form: {
-        padding: 20,
-    },
-    inputGroup: {
-        marginBottom: 24,
-    },
-    label: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#1a1a1a',
-        marginBottom: 8,
-    },
-    input: {
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        padding: 16,
-        fontSize: 16,
-        borderWidth: 1,
-        borderColor: '#e0e0e0',
-    },
-    dica: {
-        fontSize: 14,
-        color: '#666',
-        lineHeight: 20,
-        fontStyle: 'italic',
-    },
-    footer: {
-        backgroundColor: '#fff',
-        paddingTop: 20,
-        paddingBottom: 10,
-        paddingHorizontal: 20,
-        borderTopWidth: 1,
-        borderTopColor: '#e0e0e0',
-    },
-    btnSalvar: {
-        backgroundColor: '#007AFF',
-        borderRadius: 8,
-        padding: 16,
-        alignItems: 'center',
-    },
-    btnSalvarDisabled: {
-        opacity: 0.6,
-    },
-    btnSalvarText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: '600',
-    },
-});
+function createStyles(colors: any, isDark: boolean) {
+    return StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: colors.background,
+        },
+        header: {
+            backgroundColor: colors.card,
+            paddingTop: 60,
+            paddingBottom: 20,
+            paddingHorizontal: 20,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+        },
+        btnVoltar: {
+            marginBottom: 12,
+        },
+        btnVoltarText: {
+            fontSize: 16,
+            color: '#007AFF',
+            fontWeight: '500',
+        },
+        titulo: {
+            fontSize: 28,
+            fontWeight: '700',
+            color: colors.text,
+        },
+        content: {
+            flex: 1,
+        },
+        form: {
+            padding: 20,
+        },
+        inputGroup: {
+            marginBottom: 24,
+        },
+        label: {
+            fontSize: 16,
+            fontWeight: '600',
+            color: colors.textSecondary,
+            marginBottom: 8,
+        },
+        input: {
+            backgroundColor: colors.card,
+            borderRadius: 8,
+            padding: 16,
+            fontSize: 16,
+            borderWidth: 1,
+            borderColor: colors.border,
+            color: colors.text,
+        },
+        dica: {
+            fontSize: 14,
+            color: colors.textSecondary,
+            lineHeight: 20,
+            fontStyle: 'italic',
+        },
+        footer: {
+            backgroundColor: colors.card,
+            padding: 20,
+            borderTopWidth: 1,
+            borderTopColor: colors.border,
+        },
+        btnSalvar: {
+            backgroundColor: colors.primary,
+            borderRadius: 8,
+            padding: 16,
+            alignItems: 'center',
+        },
+        btnSalvarDisabled: {
+            opacity: 0.6,
+        },
+        btnSalvarText: {
+            color: colors.card,
+            fontSize: 18,
+            fontWeight: '600',
+        },
+    });
+}
