@@ -168,6 +168,7 @@ export default function ListaClientes() {
                 </View>
             </View>
 
+                    {/* lista de clientes */}
             <FlatList
                 data={clientesFiltrados}
                 keyExtractor={item => item.id}
@@ -317,7 +318,7 @@ function createStyles(colors: any, isDark: boolean) {
             width: 60,
             height: 60,
             borderRadius: 30,
-            backgroundColor: colors.background,
+            backgroundColor: colors.primary,
             alignItems: 'center',
             justifyContent: 'center',
             shadowColor: colors.shadow,
@@ -328,7 +329,7 @@ function createStyles(colors: any, isDark: boolean) {
         },
         fabText: {
             fontSize: 32,
-            color: colors.background,
+            color: colors.text,
             fontWeight: '300',
         },
     });

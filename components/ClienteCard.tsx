@@ -2,6 +2,7 @@
 // components/ClienteCard.tsx
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '../contexts/ThemeContext';
 import { Cliente } from '../types';
 
 type ClienteCardProps = {
@@ -12,6 +13,9 @@ type ClienteCardProps = {
 };
 
 const ClienteCard: React.FC<ClienteCardProps> = ({ cliente, totalDevido, onPress, onLongPress }) => {
+  const { colors, isDark } = useTheme();
+  const styles = createStyles(colors, isDark);
+
   return (
     <TouchableOpacity onPress={onPress} onLongPress={onLongPress} style={styles.card}>
       <View style={styles.infoContainer}>
@@ -28,52 +32,54 @@ const ClienteCard: React.FC<ClienteCardProps> = ({ cliente, totalDevido, onPress
   );
 };
 
-const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 16,
-    marginHorizontal: 16,
-    marginVertical: 6,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  infoContainer: {
-    flex: 1,
-  },
-  nome: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#1a1a1a',
-  },
-  telefone: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
-  },
-  dividaContainer: {
-    alignItems: 'flex-end',
-  },
-  dividaLabel: {
-    fontSize: 12,
-    color: '#2C2C2E',
-  },
-  dividaValor: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  comDivida: {
-    color: '#e53935',
-  },
-  semDivida: {
-    color: '#43a047',
-  },
-});
+function createStyles(colors: any, isDark: boolean) {
+  return StyleSheet.create({
+    card: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      padding: 16,
+      marginHorizontal: 16,
+      marginVertical: 6,
+      borderRadius: 12,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: isDark ? 0.3 : 0.1,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    infoContainer: {
+      flex: 1,
+    },
+    nome: {
+      fontSize: 17,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    telefone: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginTop: 4,
+    },
+    dividaContainer: {
+      alignItems: 'flex-end',
+    },
+    dividaLabel: {
+      fontSize: 12,
+      color: colors.textSecondary,
+    },
+    dividaValor: {
+      fontSize: 16,
+      fontWeight: '700',
+    },
+    comDivida: {
+      color: colors.danger,
+    },
+    semDivida: {
+      color: colors.success,
+    },
+  });
+}
 
 export default ClienteCard;

@@ -207,7 +207,7 @@ function createStyles(colors: any, isDark: boolean) {
             paddingVertical: 8,
         },
         compraCard: {
-            backgroundColor: colors.background,
+            backgroundColor: colors.card,
             borderRadius: 12,
             padding: 16,
             marginHorizontal: 16,

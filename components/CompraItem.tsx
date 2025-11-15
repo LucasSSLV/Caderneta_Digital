@@ -1,5 +1,7 @@
 // components/CompraItem.tsx - ATUALIZADO
+import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '../contexts/ThemeContext';
 import { Compra } from '../types';
 
 interface CompraItemProps {
@@ -13,6 +15,8 @@ export default function CompraItem({
     onTogglePago,
     onDelete
 }: CompraItemProps) {
+    const { colors, isDark } = useTheme();
+    const styles = createStyles(colors, isDark);
 
     const formatarValor = (valor: number) => {
         return valor.toLocaleString('pt-BR', {
@@ -89,73 +93,75 @@ export default function CompraItem({
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        marginHorizontal: 16,
-        marginVertical: 6,
-        flexDirection: 'row',
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 2,
-    },
-    containerPago: {
-        backgroundColor: '#f8f9fa',
-        opacity: 0.8,
-    },
-    conteudo: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 14,
-    },
-    info: {
-        flex: 1,
-    },
-    descricao: {
-        fontSize: 16,
-        fontWeight: '500',
-        color: '#1a1a1a',
-        marginBottom: 4,
-    },
-    data: {
-        fontSize: 12,
-        color: '#999',
-    },
-    observacao: {
-        fontSize: 12,
-        color: '#666',
-        fontStyle: 'italic',
-        marginTop: 4,
-    },
-    direita: {
-        alignItems: 'flex-end',
-    },
-    valor: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#e74c3c',
-        marginBottom: 4,
-    },
-    badge: {
-        fontSize: 11,
-        color: '#27ae60',
-        fontWeight: '600',
-    },
-    textoPago: {
-        textDecorationLine: 'line-through',
-        color: '#999',
-    },
-    btnDelete: {
-        padding: 14,
-        paddingLeft: 8,
-    },
-    deleteText: {
-        fontSize: 18,
-    },
-});
+function createStyles(colors: any, isDark: boolean) {
+    return StyleSheet.create({
+        container: {
+            backgroundColor: colors.card,
+            borderRadius: 8,
+            marginHorizontal: 16,
+            marginVertical: 6,
+            flexDirection: 'row',
+            alignItems: 'center',
+            shadowColor: colors.shadow,
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.05,
+            shadowRadius: 2,
+            elevation: 2,
+        },
+        containerPago: {
+            backgroundColor: colors.cardSuccess,
+            opacity: 0.8,
+        },
+        conteudo: {
+            flex: 1,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: 14,
+        },
+        info: {
+            flex: 1,
+        },
+        descricao: {
+            fontSize: 16,
+            fontWeight: '500',
+            color: colors.text,
+            marginBottom: 4,
+        },
+        data: {
+            fontSize: 12,
+            color: colors.textSecondary,
+        },
+        observacao: {
+            fontSize: 12,
+            color: colors.textSecondary,
+            fontStyle: 'italic',
+            marginTop: 4,
+        },
+        direita: {
+            alignItems: 'flex-end',
+        },
+        valor: {
+            fontSize: 16,
+            fontWeight: '700',
+            color: colors.danger,
+            marginBottom: 4,
+        },
+        badge: {
+            fontSize: 11,
+            color: colors.success,
+            fontWeight: '600',
+        },
+        textoPago: {
+            textDecorationLine: 'line-through',
+            color: '#999',
+        },
+        btnDelete: {
+            padding: 14,
+            paddingLeft: 8,
+        },
+        deleteText: {
+            fontSize: 18,
+        },
+    });
+}

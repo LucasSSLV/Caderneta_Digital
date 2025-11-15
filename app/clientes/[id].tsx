@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CompraItem from '../../components/CompraItem';
 import TotalDevido from '../../components/TotalDevido';
+import { useTheme } from '../../contexts/ThemeContext';
 import * as storage from '../../services/storage';
 import * as whatsappService from '../../services/whataspp';
 import { Cliente, Compra } from '../../types';
@@ -15,6 +16,8 @@ export default function ClienteDetalhes() {
     const [cliente, setCliente] = useState<Cliente | null>(null);
     const [compras, setCompras] = useState<Compra[]>([]);
     const [loading, setLoading] = useState(true);
+    const { colors, isDark } = useTheme();
+    const styles = createStyles(colors, isDark);
 
     const handleCompartilharExtrato = () => {
         if (!cliente) return;
@@ -258,131 +261,133 @@ export default function ClienteDetalhes() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f5f5f5',
-        marginBottom: 60,
-    },
-    acoesWhatsApp: {
-        flexDirection: 'row',
-        paddingHorizontal: 16,
-        gap: 12,
-        marginBottom: 16,
-    },
-    btnWhatsApp: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#25D366',
-        borderRadius: 8,
-        padding: 12,
-        gap: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    btnWhatsAppSecundario: {
-        backgroundColor: '#128C7E',
-    },
-    btnWhatsAppIcon: {
-        fontSize: 20,
-    },
-    btnWhatsAppText: {
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f5f5f5',
-    },
-    loadingText: {
-        marginTop: 12,
-        fontSize: 16,
-        color: '#666',
-    },
-    header: {
-        backgroundColor: '#fff',
-        paddingTop: 60,
-        paddingBottom: 20,
-        paddingHorizontal: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
-    },
-    btnEditar: {
-        marginTop: 8,
-        padding: 8,
-        borderRadius: 4,
-    },
-    btnVoltar: {
-        marginBottom: 12,
-    },
-    btnVoltarText: {
-        fontSize: 16,
-        color: '#007AFF',
-        fontWeight: '500',
-    },
-    nomeCliente: {
-        fontSize: 28,
-        fontWeight: '700',
-        color: '#1a1a1a',
-        marginBottom: 4,
-    },
-    telefone: {
-        fontSize: 16,
-        color: '#666',
-    },
-    lista: {
-        paddingBottom: 100,
-    },
-    empty: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 60,
-        paddingHorizontal: 40,
-    },
-    emptyText: {
-        fontSize: 64,
-        marginBottom: 16,
-    },
-    emptyTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#1a1a1a',
-        marginBottom: 8,
-        textAlign: 'center',
-    },
-    emptySubtitle: {
-        fontSize: 14,
-        color: '#666',
-        textAlign: 'center',
-        lineHeight: 20,
-    },
-    fab: {
-        position: 'absolute',
-        right: 20,
-        bottom: 20,
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        backgroundColor: '#007AFF',
-        alignItems: 'center',
-        justifyContent: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 8,
-    },
-    fabText: {
-        fontSize: 32,
-        color: '#fff',
-        fontWeight: '300',
-    },
-});
+function createStyles(colors: any, isDark: boolean) {
+    return StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: colors.background,
+            marginBottom: 60,
+        },
+        acoesWhatsApp: {
+            flexDirection: 'row',
+            paddingHorizontal: 16,
+            gap: 12,
+            marginBottom: 16,
+        },
+        btnWhatsApp: {
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#25D366',
+            borderRadius: 8,
+            padding: 12,
+            gap: 8,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+        },
+        btnWhatsAppSecundario: {
+            backgroundColor: '#128C7E',
+        },
+        btnWhatsAppIcon: {
+            fontSize: 20,
+        },
+        btnWhatsAppText: {
+            color: '#fff',
+            fontSize: 14,
+            fontWeight: '600',
+        },
+        loadingContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: colors.background,
+        },
+        loadingText: {
+            marginTop: 12,
+            fontSize: 16,
+            color: colors.loadingText,
+        },
+        header: {
+            backgroundColor: colors.card,
+            paddingTop: 60,
+            paddingBottom: 20,
+            paddingHorizontal: 20,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+        },
+        btnEditar: {
+            marginTop: 8,
+            padding: 8,
+            borderRadius: 4,
+        },
+        btnVoltar: {
+            marginBottom: 12,
+        },
+        btnVoltarText: {
+            fontSize: 16,
+            color: '#007AFF',
+            fontWeight: '500',
+        },
+        nomeCliente: {
+            fontSize: 28,
+            fontWeight: '700',
+            color: colors.text,
+            marginBottom: 4,
+        },
+        telefone: {
+            fontSize: 16,
+            color: colors.textSecondary,
+        },
+        lista: {
+            paddingBottom: 100,
+        },
+        empty: {
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 60,
+            paddingHorizontal: 40,
+        },
+        emptyText: {
+            fontSize: 64,
+            marginBottom: 16,
+        },
+        emptyTitle: {
+            fontSize: 18,
+            fontWeight: '600',
+            color: colors.emptyTitle,
+            marginBottom: 8,
+            textAlign: 'center',
+        },
+        emptySubtitle: {
+            fontSize: 14,
+            color: colors.textSecondary,
+            textAlign: 'center',
+            lineHeight: 20,
+        },
+        fab: {
+            position: 'absolute',
+            right: 20,
+            bottom: 20,
+            width: 60,
+            height: 60,
+            borderRadius: 30,
+            backgroundColor: colors.primary,
+            alignItems: 'center',
+            justifyContent: 'center',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 4,
+            elevation: 8,
+        },
+        fabText: {
+            fontSize: 32,
+            color: colors.text,
+            fontWeight: '300',
+        },
+    });
+}
