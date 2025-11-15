@@ -67,97 +67,29 @@ export const compartilharExtratoCliente = async (
     let url = "";
 
     if (telefone && telefone.length >= 10) {
-      // Com telefone específico
       url = `whatsapp://send?phone=55${telefone}&text=${encodeURIComponent(
         mensagem
       )}`;
     } else {
-      // Sem telefone - abre WhatsApp com mensagem pronta
       url = `whatsapp://send?text=${encodeURIComponent(mensagem)}`;
     }
 
-    const supported = await Linking.canOpenURL(url);
-
-    if (supported) {
+    try {
       await Linking.openURL(url);
-    } else {
-      Alert.alert(
-        "WhatsApp não encontrado",
-        "Instale o WhatsApp para compartilhar extratos."
-      );
+    } catch (openError) {
+      const supported = await Linking.canOpenURL("whatsapp://send");
+
+      if (!supported) {
+        Alert.alert(
+          "WhatsApp não encontrado",
+          "Instale o WhatsApp para compartilhar extratos."
+        );
+      } else {
+        await Linking.openURL(url);
+      }
     }
   } catch (error) {
     console.error("Erro ao compartilhar via WhatsApp:", error);
-    Alert.alert("Erro", "Não foi possível abrir o WhatsApp.");
-  }
-};
-
-export const compartilharCobranca = async (
-  cliente: Cliente,
-  totalDevido: number
-) => {
-  try {
-    let mensagem = `🔔 *LEMBRETE DE PAGAMENTO*\n\n`;
-    mensagem += `Olá, ${cliente.nome}! 👋\n\n`;
-    mensagem += `Você tem um valor pendente:\n`;
-    mensagem += `💰 ${formatarValor(totalDevido)}\n\n`;
-    mensagem += `Por favor, quando puder, regularize seu pagamento. 😊\n\n`;
-    mensagem += `_Enviado via Caderneta Digital_`;
-
-    const telefone = cliente.telefone?.replace(/\D/g, "");
-    let url = "";
-
-    if (telefone && telefone.length >= 10) {
-      url = `whatsapp://send?phone=55${telefone}&text=${encodeURIComponent(
-        mensagem
-      )}`;
-    } else {
-      url = `whatsapp://send?text=${encodeURIComponent(mensagem)}`;
-    }
-
-    const supported = await Linking.canOpenURL(url);
-
-    if (supported) {
-      await Linking.openURL(url);
-    } else {
-      Alert.alert(
-        "WhatsApp não encontrado",
-        "Instale o WhatsApp para enviar cobranças."
-      );
-    }
-  } catch (error) {
-    console.error("Erro ao enviar cobrança:", error);
-    Alert.alert("Erro", "Não foi possível abrir o WhatsApp.");
-  }
-};
-
-export const compartilharRelatorioGeral = async (
-  totalDevedores: number,
-  totalDevido: number,
-  totalRecebido: number
-) => {
-  try {
-    let mensagem = `📊 *RELATÓRIO GERAL*\n\n`;
-    mensagem += `📅 ${new Date().toLocaleDateString("pt-BR")}\n\n`;
-    mensagem += `👥 Clientes devedores: ${totalDevedores}\n`;
-    mensagem += `💰 Total a receber: ${formatarValor(totalDevido)}\n`;
-    mensagem += `✅ Total recebido: ${formatarValor(totalRecebido)}\n\n`;
-    mensagem += `_Enviado via Caderneta Digital_`;
-
-    const url = `whatsapp://send?text=${encodeURIComponent(mensagem)}`;
-
-    const supported = await Linking.canOpenURL(url);
-
-    if (supported) {
-      await Linking.openURL(url);
-    } else {
-      Alert.alert(
-        "WhatsApp não encontrado",
-        "Instale o WhatsApp para compartilhar relatórios."
-      );
-    }
-  } catch (error) {
-    console.error("Erro ao compartilhar relatório:", error);
     Alert.alert("Erro", "Não foi possível abrir o WhatsApp.");
   }
 };

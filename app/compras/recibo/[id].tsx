@@ -90,12 +90,57 @@ export default function ReciboScreen() {
         );
     };
 
-    const handleImprimir = () => {
-        Alert.alert(
-            'Impressão',
-            'A funcionalidade de impressão via Bluetooth será implementada em breve!',
-            [{ text: 'OK' }]
-        );
+    const handleImprimir = async () => {
+        if (!compra || !cliente) return;
+
+        try {
+            // Buscar impressora padrão
+            const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+            const printerAddress = await AsyncStorage.getItem('@caderneta:impressora_padrao');
+
+            if (!printerAddress) {
+                Alert.alert(
+                    'Impressora não configurada',
+                    'Configure uma impressora Bluetooth nas configurações antes de imprimir.',
+                    [
+                        { text: 'Cancelar', style: 'cancel' },
+                        {
+                            text: 'Configurar',
+                            onPress: () => router.push('/configuracoes/impressora')
+                        }
+                    ]
+                );
+                return;
+            }
+
+            // Importar dinamicamente o serviço de impressão
+            const bluetoothPrinter = require('../../../services/bluetoothPrinter');
+
+            Alert.alert(
+                'Imprimir Recibo',
+                'Certifique-se de que a impressora está ligada e próxima.',
+                [
+                    { text: 'Cancelar', style: 'cancel' },
+                    {
+                        text: 'Imprimir',
+                        onPress: async () => {
+                            await bluetoothPrinter.imprimirRecibo(
+                                cliente,
+                                compra,
+                                numeroRecibo,
+                                printerAddress
+                            );
+                        }
+                    }
+                ]
+            );
+        } catch (error) {
+            console.error('Erro ao imprimir:', error);
+            Alert.alert(
+                'Erro',
+                'Não foi possível imprimir o recibo. Verifique se a impressora está configurada e conectada.'
+            );
+        }
     };
 
     const formatarValor = (valor: number) => {
@@ -282,6 +327,7 @@ function createStyles(colors: any, isDark: boolean) {
         container: {
             flex: 1,
             backgroundColor: colors.background,
+            marginBottom: 60,
         },
         loadingContainer: {
             flex: 1,

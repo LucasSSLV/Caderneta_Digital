@@ -404,6 +404,7 @@ export default function Configuracoes() {
         </View>
 
         {/* Empresa */}
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>🏢 Empresa</Text>
 
@@ -423,8 +424,25 @@ export default function Configuracoes() {
             </View>
             <Text style={styles.actionArrow}>›</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={() => router.push('/configuracoes/impressora')}
+            activeOpacity={0.7}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: isDark ? colors.cardPurple : '#F3E5F5' }]}>
+              <Text style={styles.actionIconText}>🖨️</Text>
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={styles.actionTitle}>Impressora Bluetooth</Text>
+              <Text style={styles.actionDescription}>
+                Configure impressora térmica para recibos
+              </Text>
+            </View>
+            <Text style={styles.actionArrow}>›</Text>
+          </TouchableOpacity>
         </View>
-        
+
         {/* Uso de Armazenamento */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>💾 Uso de Armazenamento</Text>
@@ -654,6 +672,7 @@ function createStyles(colors: any, isDark: boolean) {
     container: {
       flex: 1,
       backgroundColor: colors.background,
+      marginBottom: 60,
     },
     loadingContainer: {
       flex: 1,
