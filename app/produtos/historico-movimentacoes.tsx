@@ -1,4 +1,5 @@
 // app/produtos/historico-movimentacoes.tsx
+import { useTheme } from '@/contexts/ThemeContext';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
@@ -27,6 +28,8 @@ export default function HistoricoMovimentacoes() {
     const router = useRouter();
     const [movimentacoes, setMovimentacoes] = useState<Movimentacao[]>([]);
     const [loading, setLoading] = useState(true);
+    const { colors, isDark } = useTheme();
+    const styles = createStyles(colors, isDark);
 
     const carregarMovimentacoes = async () => {
         try {
@@ -72,10 +75,19 @@ export default function HistoricoMovimentacoes() {
 
     const getTipoColor = (tipo: string) => {
         switch (tipo) {
-            case 'entrada': return '#27ae60';
-            case 'saida': return '#e74c3c';
-            case 'ajuste': return '#f39c12';
-            default: return '#666';
+            case 'entrada': return colors.success;
+            case 'saida': return colors.danger;
+            case 'ajuste': return colors.warning;
+            default: return colors.textSecondary;
+        }
+    };
+
+    const getTipoBackgroundColor = (tipo: string) => {
+        switch (tipo) {
+            case 'entrada': return colors.cardSuccess;
+            case 'saida': return colors.cardDanger;
+            case 'ajuste': return colors.cardWarning;
+            default: return colors.card;
         }
     };
 
@@ -95,7 +107,7 @@ export default function HistoricoMovimentacoes() {
                     <Text style={styles.produtoNome}>{item.nomeProduto}</Text>
                     <Text style={styles.motivo}>{item.motivo}</Text>
                 </View>
-                <View style={[styles.tipoBadge, { backgroundColor: getTipoColor(item.tipo) + '20' }]}>
+                <View style={[styles.tipoBadge, { backgroundColor: getTipoBackgroundColor(item.tipo) }]}>
                     <Text style={styles.tipoIcon}>{getTipoIcon(item.tipo)}</Text>
                     <Text style={[styles.tipoText, { color: getTipoColor(item.tipo) }]}>
                         {getTipoText(item.tipo)}
@@ -138,7 +150,7 @@ export default function HistoricoMovimentacoes() {
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#007AFF" />
+                <ActivityIndicator size="large" color={colors.primary} />
                 <Text style={styles.loadingText}>Carregando...</Text>
             </View>
         );
@@ -179,162 +191,164 @@ export default function HistoricoMovimentacoes() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f5f5f5',
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f5f5f5',
-    },
-    loadingText: {
-        marginTop: 12,
-        fontSize: 16,
-        color: '#666',
-    },
-    header: {
-        backgroundColor: '#fff',
-        paddingTop: 60,
-        paddingBottom: 20,
-        paddingHorizontal: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
-    },
-    btnVoltar: {
-        marginBottom: 12,
-    },
-    btnVoltarText: {
-        fontSize: 16,
-        color: '#007AFF',
-        fontWeight: '500',
-    },
-    titulo: {
-        fontSize: 28,
-        fontWeight: '700',
-        color: '#1a1a1a',
-        marginBottom: 4,
-    },
-    subtitulo: {
-        fontSize: 14,
-        color: '#666',
-    },
-    lista: {
-        paddingVertical: 8,
-    },
-    movimentacaoCard: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 16,
-        marginHorizontal: 16,
-        marginVertical: 6,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    cardHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: 16,
-    },
-    produtoInfo: {
-        flex: 1,
-        marginRight: 12,
-    },
-    produtoNome: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#1a1a1a',
-        marginBottom: 4,
-    },
-    motivo: {
-        fontSize: 13,
-        color: '#666',
-    },
-    tipoBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 8,
-        gap: 6,
-    },
-    tipoIcon: {
-        fontSize: 16,
-    },
-    tipoText: {
-        fontSize: 13,
-        fontWeight: '600',
-    },
-    cardBody: {
-        paddingVertical: 12,
-        borderTopWidth: 1,
-        borderTopColor: '#f0f0f0',
-        borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
-    },
-    estoqueRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    estoqueItem: {
-        alignItems: 'center',
-        flex: 1,
-    },
-    estoqueLabel: {
-        fontSize: 12,
-        color: '#999',
-        marginBottom: 4,
-    },
-    estoqueValor: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: '#666',
-    },
-    estoqueAtual: {
-        color: '#007AFF',
-    },
-    quantidadeContainer: {
-        paddingHorizontal: 20,
-    },
-    quantidade: {
-        fontSize: 24,
-        fontWeight: '700',
-    },
-    cardFooter: {
-        marginTop: 12,
-    },
-    data: {
-        fontSize: 12,
-        color: '#999',
-    },
-    empty: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 80,
-        paddingHorizontal: 40,
-    },
-    emptyText: {
-        fontSize: 64,
-        marginBottom: 16,
-    },
-    emptyTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#1a1a1a',
-        marginBottom: 8,
-        textAlign: 'center',
-    },
-    emptySubtitle: {
-        fontSize: 14,
-        color: '#666',
-        textAlign: 'center',
-        lineHeight: 20,
-    },
-});
+function createStyles(colors: any, isDark: boolean) {
+    return StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: colors.background,
+        },
+        loadingContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: colors.background,
+        },
+        loadingText: {
+            marginTop: 12,
+            fontSize: 16,
+            color: colors.textSecondary,
+        },
+        header: {
+            backgroundColor: colors.card,
+            paddingTop: 60,
+            paddingBottom: 20,
+            paddingHorizontal: 20,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+        },
+        btnVoltar: {
+            marginBottom: 12,
+        },
+        btnVoltarText: {
+            fontSize: 16,
+            color: colors.primary,
+            fontWeight: '500',
+        },
+        titulo: {
+            fontSize: 28,
+            fontWeight: '700',
+            color: colors.text,
+            marginBottom: 4,
+        },
+        subtitulo: {
+            fontSize: 14,
+            color: colors.textSecondary,
+        },
+        lista: {
+            paddingVertical: 8,
+        },
+        movimentacaoCard: {
+            backgroundColor: colors.card,
+            borderRadius: 12,
+            padding: 16,
+            marginHorizontal: 16,
+            marginVertical: 6,
+            shadowColor: colors.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: isDark ? 0.3 : 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+        },
+        cardHeader: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            marginBottom: 16,
+        },
+        produtoInfo: {
+            flex: 1,
+            marginRight: 12,
+        },
+        produtoNome: {
+            fontSize: 16,
+            fontWeight: '600',
+            color: colors.text,
+            marginBottom: 4,
+        },
+        motivo: {
+            fontSize: 13,
+            color: colors.textSecondary,
+        },
+        tipoBadge: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+            borderRadius: 8,
+            gap: 6,
+        },
+        tipoIcon: {
+            fontSize: 16,
+        },
+        tipoText: {
+            fontSize: 13,
+            fontWeight: '600',
+        },
+        cardBody: {
+            paddingVertical: 12,
+            borderTopWidth: 1,
+            borderTopColor: colors.divider,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.divider,
+        },
+        estoqueRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+        },
+        estoqueItem: {
+            alignItems: 'center',
+            flex: 1,
+        },
+        estoqueLabel: {
+            fontSize: 12,
+            color: colors.textSecondary,
+            marginBottom: 4,
+        },
+        estoqueValor: {
+            fontSize: 20,
+            fontWeight: '700',
+            color: colors.textSecondary,
+        },
+        estoqueAtual: {
+            color: colors.primary,
+        },
+        quantidadeContainer: {
+            paddingHorizontal: 20,
+        },
+        quantidade: {
+            fontSize: 24,
+            fontWeight: '700',
+        },
+        cardFooter: {
+            marginTop: 12,
+        },
+        data: {
+            fontSize: 12,
+            color: colors.textSecondary,
+        },
+        empty: {
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 80,
+            paddingHorizontal: 40,
+        },
+        emptyText: {
+            fontSize: 64,
+            marginBottom: 16,
+        },
+        emptyTitle: {
+            fontSize: 18,
+            fontWeight: '600',
+            color: colors.emptyTitle,
+            marginBottom: 8,
+            textAlign: 'center',
+        },
+        emptySubtitle: {
+            fontSize: 14,
+            color: colors.textSecondary,
+            textAlign: 'center',
+            lineHeight: 20,
+        },
+    });
+}
