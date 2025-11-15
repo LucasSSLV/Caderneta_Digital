@@ -287,6 +287,7 @@ function createStyles(colors: any, isDark: boolean) {
         container: {
             flex: 1,
             backgroundColor: colors.background,
+            marginBottom: 60,
         },
         headerContent: {
             flexDirection: 'row',
