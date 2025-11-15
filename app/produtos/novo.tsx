@@ -137,7 +137,7 @@ export default function NovoProduto() {
             <ScrollView style={styles.content} keyboardShouldPersistTaps="handled">
                 <View style={styles.form}>
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Nome do Produto *</Text>
+                        <Text style={styles.label}>Nome do Produto</Text>
                         <TextInput
                             style={styles.input}
                             placeholder="Ex: Arroz 5kg"

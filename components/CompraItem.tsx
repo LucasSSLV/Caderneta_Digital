@@ -1,8 +1,11 @@
 // components/CompraItem.tsx - ATUALIZADO
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { Compra } from '../types';
+
+
 
 interface CompraItemProps {
     compra: Compra;
@@ -17,6 +20,8 @@ export default function CompraItem({
 }: CompraItemProps) {
     const { colors, isDark } = useTheme();
     const styles = createStyles(colors, isDark);
+
+    const router = useRouter();
 
     const formatarValor = (valor: number) => {
         return valor.toLocaleString('pt-BR', {
@@ -67,6 +72,13 @@ export default function CompraItem({
                     {compra.observacao && (
                         <Text style={styles.observacao}>{compra.observacao}</Text>
                     )}
+                    <TouchableOpacity
+                        style={styles.btnRecibo}
+                        onPress={() => router.push(`/compras/recibo/${compra.id}`)}
+                        activeOpacity={0.7}
+                    >
+                        <Text style={styles.reciboText}>📄 Ver Recibo</Text>
+                    </TouchableOpacity>
                 </View>
 
                 <View style={styles.direita}>
@@ -107,6 +119,14 @@ function createStyles(colors: any, isDark: boolean) {
             shadowOpacity: 0.05,
             shadowRadius: 2,
             elevation: 2,
+        },
+        btnRecibo: {
+            padding: 6,
+            marginTop: 6,
+        },
+        reciboText: {
+            fontSize: 12,
+            color: colors.primary,
         },
         containerPago: {
             backgroundColor: colors.cardSuccess,

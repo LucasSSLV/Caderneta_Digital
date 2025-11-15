@@ -379,7 +379,7 @@ export default function Configuracoes() {
       </View>
 
       <ScrollView style={styles.content}>
-        {/* NOVA SEÇÃO: APARÊNCIA */}
+        {/* APARÊNCIA */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>🎨 Aparência</Text>
 
@@ -403,6 +403,28 @@ export default function Configuracoes() {
           </TouchableOpacity>
         </View>
 
+        {/* Empresa */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🏢 Empresa</Text>
+
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={() => router.push('/configuracoes/dados-empresa')}
+            activeOpacity={0.7}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: isDark ? colors.cardInfo : '#E3F2FD' }]}>
+              <Text style={styles.actionIconText}>🏢</Text>
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={styles.actionTitle}>Dados da Empresa</Text>
+              <Text style={styles.actionDescription}>
+                Configure nome, CNPJ e endereço para recibos
+              </Text>
+            </View>
+            <Text style={styles.actionArrow}>›</Text>
+          </TouchableOpacity>
+        </View>
+        
         {/* Uso de Armazenamento */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>💾 Uso de Armazenamento</Text>
